@@ -3,6 +3,7 @@ import { Document } from "mongoose";
 export interface IPaymentSchema extends Document {
   paymentType: keyof typeof EPaymentType;
   name: string;
+  bankName: string;
   acctNum?: string;
   cardNum?: string;
   cvv?: string;

@@ -1,2 +1,9 @@
 .env
 node_modules
+dist
+app
+
+!logs
+logs/*
+!uploads
+uploads/*

@@ -4,18 +4,18 @@ import { IPayment } from "../payment/payment.interface";
 export interface IUserSchema extends Document {
   name: IUserFullName;
   img: string;
-  type: keyof typeof EUserType;
-  desc: IUserDescription;
+  desc?: IUserDescription;
   address: string;
   payment?: typeof Types.ObjectId[];
+  setImg: (img: string, email: string) => void;
 }
 
 export interface IUserDescription {
-  description: string;
-  hobbies: string[];
-  work: string;
-  favFood: string;
-  favPlace: string;
+  description?: string;
+  hobbies?: string[];
+  work?: string;
+  favFood?: string;
+  favPlace?: string;
 }
 
 export interface IUserFullName {
@@ -29,16 +29,11 @@ export interface IUser {
   _id: string;
   name: IUserFullName;
   img: string;
-  type: keyof typeof EUserType;
   desc: IUserDescription;
   address: string;
   payment?: IPayment[];
   createdAt: string;
   updatedAt: string;
-}
-
-export enum EUserType {
-  'admin', 'host', 'customer'
 }
 
 export interface IUserPrev {

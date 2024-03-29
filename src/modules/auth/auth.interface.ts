@@ -5,6 +5,17 @@ export interface IAuthSchema extends Document {
   email: string;
   password: string;
   google?: any;
+  access: keyof typeof EUserType[];
+  generateHash: (password: string) => void;
+  compareHash: (password: string) => boolean;
+  generateToken: () => { access: string, refresh: string }
+}
+
+export interface IPersonalAccessTokenSchema extends Document {
+  userId: typeof Types.ObjectId;
+  accessToken: string;
+  refreshToken: string;
+  device?: string;
 }
 
 export interface IAuth {
@@ -13,6 +24,16 @@ export interface IAuth {
   email: string;
   password: string;
   google?: any;
-  createdAt: string;
-  updatedAt: string;
+}
+
+export interface IPersonalAccessToken {
+  _id: string;
+  userId: string;
+  accessToken: string;
+  refreshToken: string;
+  device?: string;
+}
+
+export enum EUserType {
+  'admin', 'host', 'customer'
 }
