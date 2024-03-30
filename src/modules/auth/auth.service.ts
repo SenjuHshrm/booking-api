@@ -17,7 +17,7 @@ let generateToken = async (res: Response, a: Express.User): Promise<Response<{ t
       refreshToken: token.refresh
     }).save()
     return res.status(200).json({ token: token.access })
-  } catch(e) {
+  } catch(e: any) {
     logger('auth.controller', 'generateToken', e.message, 'AUTH-0001')
     return res.status(500).json({ code: 'AUTH-0001' })
   }
@@ -28,7 +28,7 @@ let logout = async (res: Response, a: Express.User, accessToken: string): Promis
     let auth: IAuthSchema = <IAuthSchema>a;
     await PersonalAccessToken.findOneAndDelete({ userId: auth.userId, accessToken }).exec()
     return res.sendStatus(200)
-  } catch(e) {
+  } catch(e: any) {
     logger('auth.controller', 'logout', e.message, 'AUTH-0002')
     return res.status(500).json({ code: 'AUTH-0002' })
   }
@@ -47,7 +47,7 @@ let requestToken = async (res: Response, accessToken: string): Promise<Response<
     pat.refreshToken = refresh
     pat.save()
     return res.status(200).json({ token: access })
-  } catch(e) {
+  } catch(e: any) {
     logger('auth.controller', 'requestToken', e.message, 'AUTH-0003')
     return res.status(500).json({ code: 'AUTH-0003' })
   }

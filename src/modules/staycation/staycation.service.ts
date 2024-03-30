@@ -8,7 +8,7 @@ let applyProprietorship = async (res: Response, form: IStaycationInput): Promise
   try {
     new Staycation({ ...form }).save()
     return res.sendStatus(201)
-  } catch(e) {
+  } catch(e: any) {
     logger('staycation.controller', 'applyProprietorship', e.message, 'STC-0001')
     return res.status(500).json({ code: 'STC-0001' })
   }
@@ -18,7 +18,7 @@ let getListings = async (res: Response, page: number, limit: number, isListed: b
   try {
     let listings: IStaycationSchema[] = <IStaycationSchema[]>(await Staycation.find({ isListed }).populate('host', { path: "_id name img" }).skip(page).limit(limit).exec())
     return res.status(200).json(listings)
-  } catch(e) {
+  } catch(e: any) {
     logger('staycation.controller', 'getListings', e.message, 'STC-0002')
     return res.status(500).json({ code: 'STC-0002' })
   }
@@ -28,7 +28,7 @@ let updateStaycation = async (res: Response, id: string, form: IStaycationInput)
   try {
     Staycation.findByIdAndUpdate(id, { $set: { ...form } })
     return res.sendStatus(200)
-  } catch(e) {
+  } catch(e: any) {
     logger('staycation.controller', 'updateStaycation', e.message, 'STC-0003')
     return res.status(500).json({ code: 'STC-0003' })
   }
@@ -38,7 +38,7 @@ let updateListing = async (res: Response, id: string, isListed: boolean): Promis
   try {
     Staycation.findByIdAndUpdate(id, { $set: { isListed } })
     return res.sendStatus(200)
-  } catch(e) {
+  } catch(e: any) {
     logger('staycation.controller', 'updateListing', e.message, 'STC-0004')
     return res.status(500).json({ code: 'STC-0004' })
   }
@@ -49,7 +49,7 @@ let removeStaycation = async (res: Response, id: string): Promise<Response<null>
     Staycation.findByIdAndDelete(id)
     Review.deleteMany({ staycation: id })
     return res.sendStatus(200)
-  } catch(e) {
+  } catch(e: any) {
     logger('staycation.controller', 'removeStaycation', e.message, 'STC-0005')
     return res.status(500).json({ code: 'STC-0005' })
   }
