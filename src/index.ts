@@ -33,7 +33,6 @@ globalThis.appRoot = <string>resolve(__dirname)
 globalThis.io = io
 
 app.set('port', port(env.NODE_ENV))
-app.use(header)
 app.use(morgan('dev'))
 app.use(express.json({ limit: '500mb' }))
 app.use(express.urlencoded({ limit: '500mb', extended: true }))
@@ -48,6 +47,7 @@ app.use(cors({
 app.use(passport.initialize())
 import './config/passport.config'
 
+app.use(header)
 app.use('/api/', Routes)
 app.get('/*', (req: Request, res: Response) => {
   res.sendFile(join(__dirname, '/app/index.html'))

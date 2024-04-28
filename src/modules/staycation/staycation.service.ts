@@ -55,6 +55,8 @@ let removeStaycation = async (res: Response, id: string): Promise<Response<null>
   }
 }
 
+
+
 const StaycationService = {
   applyProprietorship,
   getListings,
