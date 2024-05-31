@@ -21,8 +21,13 @@ let UserSchema: Schema<IUserSchema> = new Schema<IUserSchema>({
   name: FullName,
   img: String,
   desc: UserDescription,
-  address: { type: String, required: true },
-  payment: { type: Types.ObjectId, ref: 'payment' }
+  address: String,
+  payment: { type: [Types.ObjectId], ref: 'payment' },
+  status: { type: String, required: true, enum: { values: ['active', 'suspended', 'terminated'] } },
+  identificationStat: { type: String, required: true, enum: { values: ['pending', 'approved', 'disapproved'] } },
+  suspendedUntil: String
+}, {
+  timestamps: true
 })
 
 UserSchema.methods.setImg = function(img: string, email: string) {

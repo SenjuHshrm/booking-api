@@ -5,7 +5,16 @@ import { logger } from './../../utils'
 
 let addStatic = async (res: Response, type: string, values: any): Promise<Response<null>> => {
   try {
-    new GlobalStatic({ type, values }).save()
+    let statics: IGlobalStaticSchema = <IGlobalStaticSchema>(await GlobalStatic.findOne({ type }).exec())
+    if(!statics) {
+      new GlobalStatic({ type, values: [...values] }).save()
+    } else {
+      values.forEach((i: any) => {
+        (<any>statics.values).push(i)
+      })
+      statics.markModified('values')
+      statics.save()
+    }
     return res.sendStatus(201)
   } catch(e: any) {
     logger('global-static.controller', 'addStatic', e.message, 'GST-0001')
@@ -43,11 +52,22 @@ let deleteStatic = async (res: Response, id: string): Promise<Response<null>> =>
   }
 }
 
+let getStaticByType = async (res: Response, type: string): Promise<Response<any>> => {
+  try {
+    let statics: IGlobalStaticSchema = <IGlobalStaticSchema>(await GlobalStatic.findOne({ type }).exec())
+    return res.status(200).json({ data: statics.values })
+  } catch(e: any) {
+    logger('global-static.controller', 'getStaticByType', e.message, 'GST-0005')
+    return res.status(500).json({ code: 'GST-0005' })
+  }
+}
+
 const GlobalStaticService = {
   addStatic,
   getStatic,
   updateStatic,
-  deleteStatic
+  deleteStatic,
+  getStaticByType
 }
 
 export default GlobalStaticService

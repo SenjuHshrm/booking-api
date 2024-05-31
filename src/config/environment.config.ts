@@ -12,6 +12,8 @@ export const env = {
   MONGODB_USER: <string>process.env.MONGODB_USER,
   MONGODB_PASS: <string>process.env.MONGODB_PASS,
   REDIS_URL: <string>process.env.REDIS_URL,
+  SU_EMAIL: <string>process.env.SU_EMAIL,
+  SU_PASSWORD_APP: <string>process.env.SU_PASSWORD_APP,
   SIO_ADMIN_USERNAME: <string>process.env.SIO_ADMIN_USERNAME,
   SIO_ADMIN_PASSWORD: <string>process.env.SIO_ADMIN_PASSWORD,
   ADMIN_EMAIL: <string>process.env.ADMIN_EMAIL,
@@ -21,6 +23,9 @@ export const env = {
   ADMIN_LASTNAME: <string>process.env.ADMIN_LASTNAME,
   ADMIN_EXTNAME: <string>process.env.ADMIN_EXTNAME,
   ADMIN_IMG: <string>process.env.ADMIN_IMG,
-  ADMIN_ADDRESS: <string>process.env.ADMIN_ADDRESS
+  ADMIN_ADDRESS: <string>process.env.ADMIN_ADDRESS,
+  ENCRYPT_ALGORITHM: <string>process.env.ENCRYPT_ALGORITHM,
+  ENCRYPT_KEY: <string>process.env.ENCRYPT_KEY,
+  ENCRYPT_IV: <string>process.env.ENCRYPT_IV
 }
 

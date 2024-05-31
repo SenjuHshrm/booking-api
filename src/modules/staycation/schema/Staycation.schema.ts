@@ -17,12 +17,12 @@ let StaycationSchema: Schema<IStaycationSchema> = new Schema<IStaycationSchema>(
   host: { type: Types.ObjectId, ref: 'user' },
   name: { type: String, required: true },
   descriptionFilter: { type: [String], required: true },
-  descriptionText: { type: String, required: true },
+  descriptionText: { type: [String], required: true },
   placeType: { type: String, enum: { values: Object.keys(EPlaceType) } },
-  location: {
-    type: String,
-    coordinates: []
-  },
+  // location: {
+  //   type: String,
+  //   coordinates: []
+  // },
   address: {
     country: { type: String, required: true },
     unit: String,
@@ -32,7 +32,8 @@ let StaycationSchema: Schema<IStaycationSchema> = new Schema<IStaycationSchema>(
     province: { type: String, required: true },
     zip: { type: String, required: true }
   },
-  details: [Schema.Types.Mixed],
+  details: Schema.Types.Mixed,
+  amenities: [String],
   media: {
     cover: { type: String, required: true },
     imgs: { type: [String], required: true }
@@ -45,7 +46,10 @@ let StaycationSchema: Schema<IStaycationSchema> = new Schema<IStaycationSchema>(
   },
   discounts: [StaycationDiscountSchema],
   security: [String],
-  isListed: { type: Boolean, default: false }
+  isListed: { type: Boolean, default: false },
+  isApproved: { type: Boolean, default: false }
+}, {
+  timestamps: true
 })
 
 const Staycation = model('staycation', StaycationSchema)

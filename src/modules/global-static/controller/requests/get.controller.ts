@@ -6,4 +6,8 @@ const getGlobalStaticRoutes: Router = Router()
     return GlobalStaticService.getStatic(res, req.params.id)
   })
 
+  .get('/statics/type/:type', (req: Request, res: Response) => {
+    return GlobalStaticService.getStaticByType(res, req.params.type)
+  })
+
 export default getGlobalStaticRoutes

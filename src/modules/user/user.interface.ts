@@ -7,6 +7,9 @@ export interface IUserSchema extends Document {
   desc?: IUserDescription;
   address: string;
   payment?: typeof Types.ObjectId[];
+  status: 'active' | 'suspended' | 'terminated';
+  identificationStat: 'pending' | 'approved' | 'disapproved';
+  suspendedUntil: string;
   setImg: (img: string, email: string) => void;
 }
 
@@ -30,8 +33,11 @@ export interface IUser {
   name: IUserFullName;
   img: string;
   desc: IUserDescription;
-  address: string;
+  address?: string;
   payment?: IPayment[];
+  status: 'active' | 'suspended' | 'terminated';
+  identificationStat: 'pending' | 'approved' | 'disapproved';
+  suspendedUntil: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -40,4 +46,15 @@ export interface IUserPrev {
   _id: string;
   name: string;
   img: string;
+}
+
+export interface IUserInput {
+  fName: string;
+  lName: string;
+  email: string;
+}
+
+export interface IProprietorApplicationSchema extends Document{
+  userId: typeof Types.ObjectId;
+  staycationId: typeof Types.ObjectId;
 }

@@ -3,7 +3,7 @@ node_modules
 dist
 app
 
-!logs
-logs/*
-!uploads
-uploads/*
+!src/logs
+src/logs/*.txt
+!src/uploads
+src/uploads/*

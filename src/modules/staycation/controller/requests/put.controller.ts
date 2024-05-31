@@ -6,8 +6,8 @@ const putStaycationRoutes: Router = Router()
       
   })
 
-  .put('/update-listing/:id/:list',(req: Request, res: Response) => {
-    return StaycationService.updateListing(res, req.params.id, req.params.id === 'true')
+  .put('/update-listing/:id',(req: Request, res: Response) => {
+    return StaycationService.updateListing(res, req.params.id, req.body.isListed)
   })
 
 export default putStaycationRoutes

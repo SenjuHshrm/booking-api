@@ -23,11 +23,11 @@ let generateToken = async (res: Response, a: Express.User): Promise<Response<{ t
   }
 }
 
-let logout = async (res: Response, a: Express.User, accessToken: string): Promise<Response<null>> => {
+let logout = async (res: Response, a: Express.User, accessToken: string): Promise<Response<{ logout: boolean }>> => {
   try {
     let auth: IAuthSchema = <IAuthSchema>a;
     await PersonalAccessToken.findOneAndDelete({ userId: auth.userId, accessToken }).exec()
-    return res.sendStatus(200)
+    return res.status(200).json({ logout: true })
   } catch(e: any) {
     logger('auth.controller', 'logout', e.message, 'AUTH-0002')
     return res.status(500).json({ code: 'AUTH-0002' })
@@ -37,7 +37,7 @@ let logout = async (res: Response, a: Express.User, accessToken: string): Promis
 let requestToken = async (res: Response, accessToken: string): Promise<Response<{ token: string }>> => {
   try {
     let decode: jwt.JwtPayload = <jwt.JwtPayload>jwt.decode(accessToken)
-    let auth: IAuthSchema = <IAuthSchema>(await Auth.findById(decode.sub).exec())
+    let auth: IAuthSchema = <IAuthSchema>(await Auth.findOne({ userId: decode.sub }).exec())
     if(!auth) return res.status(403).json({ msg: 'NO_ACCT' })
     let pat: IPersonalAccessTokenSchema = <IPersonalAccessTokenSchema>(await PersonalAccessToken.findOne({ accessToken, userId: decode.sub }).exec())
     if(!pat) return res.status(403).json({ msg: 'FORBIDDEN' })

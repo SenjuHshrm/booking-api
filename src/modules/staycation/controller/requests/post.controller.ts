@@ -6,6 +6,7 @@ import { uploadStaycationMedia } from '../../../../middleware';
 const postStaycationRoutes: Router = Router()
   .post('/apply', uploadStaycationMedia.array('img'), (req: Request, res: Response) => {
     let imgs: { desc: string, filename: string }[] = JSON.parse(req.body.imgDesc)
+    let prices = { ...JSON.parse(req.body.price) }
     let staycation: IStaycationInput = {
       host: req.body.host,
       name: req.body.name,
@@ -13,18 +14,20 @@ const postStaycationRoutes: Router = Router()
       descriptionFilter: JSON.parse(req.body.descriptionFilter),
       descriptionText: req.body.description,
       placeType: req.body.placeType,
-      location: { ...JSON.parse(req.body.location) },
-      address: { ...JSON.parse(req.body.address) },
+      // location: { ...JSON.parse(req.body.location) },
+      // location: { type: '', coordinates: [] },
+      address: { ...JSON.parse(req.body.address), country: 'PH' },
       details: req.body.details,
       media: {
         cover: '',
         imgs: [],
       },
+      amenities: JSON.parse(req.body.amenities),
       reservationConfirmation: req.body.reservationConfirmation,
       welcomingGuest: req.body.welcomingGuest,
-      price: { ...JSON.parse(req.body.parse) },
-      discounts: req.body.discounts,
-      security: req.body.security,
+      price: { common: prices.price, beforeTax: prices.beforeTax },
+      discounts: [ ...JSON.parse(req.body.discounts) ],
+      security: [ ...JSON.parse(req.body.security) ],
     }
     let fileArrLn: number = imgs.length
     for(let i = 0; i < fileArrLn; i++) {

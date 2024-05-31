@@ -13,12 +13,12 @@ export interface IStaycationSchema extends Document {
   host: typeof Types.ObjectId;
   name: string;
   descriptionFilter: string[];
-  descriptionText: string;
+  descriptionText: string[];
   placeType: keyof typeof EPlaceType;
-  location: {
-    type: string,
-    coordinates: any
-  };
+  // location: {
+  //   type: string,
+  //   coordinates: any
+  // };
   address: {
     country: string;
     unit?: string;
@@ -28,7 +28,8 @@ export interface IStaycationSchema extends Document {
     province: string;
     zip: string;
   };
-  details: typeof Schema.Types.Mixed[];
+  details: typeof Schema.Types.Mixed;
+  amenities: string[];
   media: {
     cover: string;
     imgs: string[];
@@ -42,6 +43,7 @@ export interface IStaycationSchema extends Document {
   discounts: IStaycationDiscountSchema[];
   security: string[];
   isListed: boolean;
+  isApproved: boolean;
 }
 
 export interface IStaycationDiscountSchema extends Document {
@@ -79,7 +81,7 @@ export interface IStaycation {
   host: IUserPrev;
   name: string;
   descriptionFilter: string[];
-  descriptionText: string;
+  descriptionText: string[];
   placeType: keyof typeof EPlaceType;
   location: {
     type: string,
@@ -95,6 +97,7 @@ export interface IStaycation {
     zip: string;
   };
   details: any;
+  amenities: string[];
   media: {
     cover: string;
     imgs: string[];
@@ -107,6 +110,7 @@ export interface IStaycation {
   },
   discounts: IStaycationDiscount[];
   security: string[];
+  isApproved: boolean;
 }
 
 export interface IStaycationInput {
@@ -114,12 +118,12 @@ export interface IStaycationInput {
   name: string;
   serverDirName: string;
   descriptionFilter: string[];
-  descriptionText: string;
+  descriptionText: string[];
   placeType: keyof typeof EPlaceType;
-  location: {
-    type: string,
-    coordinates: any
-  };
+  // location: {
+  //   type: string,
+  //   coordinates: any
+  // };
   address: {
     country: string;
     unit?: string;
@@ -130,6 +134,7 @@ export interface IStaycationInput {
     zip: string;
   };
   details: any;
+  amenities: string[];
   media: {
     cover: string;
     imgs: string[];
