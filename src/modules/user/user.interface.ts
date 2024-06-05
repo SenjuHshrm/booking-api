@@ -6,6 +6,7 @@ export interface IUserSchema extends Document {
   img: string;
   desc?: IUserDescription;
   address: string;
+  contact: string;
   payment?: typeof Types.ObjectId[];
   status: 'active' | 'suspended' | 'terminated';
   identificationStat: 'pending' | 'approved' | 'disapproved';
@@ -34,6 +35,7 @@ export interface IUser {
   img: string;
   desc: IUserDescription;
   address?: string;
+  contact: string;
   payment?: IPayment[];
   status: 'active' | 'suspended' | 'terminated';
   identificationStat: 'pending' | 'approved' | 'disapproved';

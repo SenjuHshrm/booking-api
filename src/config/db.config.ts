@@ -25,7 +25,8 @@ export const dbConfig = () => {
         },
         img: env.ADMIN_IMG,
         address: env.ADMIN_ADDRESS,
-        status: 'active'
+        status: 'active',
+        identificationStat: 'approved'
       })
       u.setImg(env.ADMIN_IMG, env.ADMIN_EMAIL)
       u.save().then((user: IUserSchema) => {
