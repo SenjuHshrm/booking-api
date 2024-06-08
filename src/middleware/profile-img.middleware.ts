@@ -15,4 +15,4 @@ let profileImgStorage: StorageEngine = multer.diskStorage({
   }
 })
 
-export const profileImgStorageMedia: Multer = multer({ dest: '', storage: profileImgStorage })
+export const profileImgStorageMedia: Multer = multer({ dest: '/uploads/profile-img', storage: profileImgStorage })

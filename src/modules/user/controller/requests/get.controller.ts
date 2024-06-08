@@ -19,4 +19,8 @@ const getUserRoutes: Router = Router()
     return UserService.getUserProfile(res, req.params.id)
   })
 
+  .get('/wishlist/:id', passport.authenticate('jwt', { session: false }), (req: Request, res: Response) => {
+    return UserService.getWishlistByUser(res, req.params.id)
+  })
+
 export default getUserRoutes

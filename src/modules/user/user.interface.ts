@@ -60,3 +60,8 @@ export interface IProprietorApplicationSchema extends Document{
   userId: typeof Types.ObjectId;
   staycationId: typeof Types.ObjectId;
 }
+
+export interface IWishlistSchema extends Document {
+  user: typeof Types.ObjectId;
+  staycation: typeof Types.ObjectId[]
+}

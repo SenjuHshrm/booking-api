@@ -24,7 +24,7 @@ const putUserRoutes: Router = Router()
         favFood: body.favFood,
         favPlace: body.favPlace
       },
-      img: `/profile-img/${body.email}/${req.file?.originalname}`
+      img: (req.file) ? `/profile-img/${body.email}/${req.file?.originalname}` : req.body.img
     }
     return UserService.updateUserProfile(res, data, req.params.id)
   })

@@ -1,12 +1,13 @@
-import { IStaycationSchema } from './../staycation/staycation.interface';
+import { IStaycation, IStaycationSchema } from './../staycation/staycation.interface';
 import { Response } from "express";
-import { IUserInput, IUserSchema, IProprietorApplicationSchema, IUser } from './user.interface';
+import { IUserInput, IUserSchema, IProprietorApplicationSchema, IUser, IWishlistSchema } from './user.interface';
 import { IAuthSchema } from "../auth/auth.interface";
 import User from './schema/User.schema';
 import Auth from '../auth/schema/Auth.schema';
 import { logger, randomPassword, sendPassword } from './../../utils';
 import ProprietorApplication from "./schema/ProprietorApplication.schema";
 import Staycation from './../staycation/schema/Staycation.schema'
+import Wishlist from './schema/Wishlist.schema';
 
 let register = async (res: Response, u: IUserInput): Promise<Response<{ success: boolean }>> => {
   try {
@@ -131,8 +132,18 @@ let updateUserProfile = async (res: Response, profile: any, id: string): Promise
     await User.findByIdAndUpdate(id, { $set: { ...profile } }).exec()
     return res.status(200).json({ success: true })
   } catch(e: any) {
-    logger('user.profile', 'updateUserProfile', e.message, 'USR-0007')
+    logger('user.controller', 'updateUserProfile', e.message, 'USR-0007')
     return res.status(500).json({ code: 'USR-0007' })
+  }
+}
+
+let getWishlistByUser = async (res: Response, user: string): Promise<Response<IStaycation[]>> => {
+  try {
+    let wl: IWishlistSchema[] = <IWishlistSchema[]>(await Wishlist.find({ user }).populate('staycation').exec())
+    return res.status(200).json(wl)
+  } catch(e: any) {
+    logger('user.controller', 'getWishlistByUser', e.message, 'USR-0008')
+    return res.status(500).json({ code: 'USR-0008' })
   }
 }
 
@@ -143,7 +154,8 @@ const UserService = {
   setAsProprietor,
   addAdmin,
   getUserProfile,
-  updateUserProfile
+  updateUserProfile,
+  getWishlistByUser
 }
 
 export default UserService
