@@ -44,7 +44,8 @@ let StaycationSchema: Schema<IStaycationSchema> = new Schema<IStaycationSchema>(
     common: { type: Number, required: true },
     beforeTax: { type: Number, required: true }
   },
-  discounts: [StaycationDiscountSchema],
+  // discounts: [StaycationDiscountSchema],
+  discounts: String,
   security: [String],
   isListed: { type: Boolean, default: false },
   isApproved: { type: Boolean, default: false }

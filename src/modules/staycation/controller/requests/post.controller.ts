@@ -26,7 +26,8 @@ const postStaycationRoutes: Router = Router()
       reservationConfirmation: req.body.reservationConfirmation,
       welcomingGuest: req.body.welcomingGuest,
       price: { common: prices.price, beforeTax: prices.beforeTax },
-      discounts: [ ...JSON.parse(req.body.discounts) ],
+      // discounts: [ ...JSON.parse(req.body.discounts) ],
+      discounts: req.body.discounts,
       security: [ ...JSON.parse(req.body.security) ],
     }
     let fileArrLn: number = imgs.length

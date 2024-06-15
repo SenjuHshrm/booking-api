@@ -40,7 +40,8 @@ export interface IStaycationSchema extends Document {
     common: number;
     beforeTax: number;
   },
-  discounts: IStaycationDiscountSchema[];
+  // discounts: IStaycationDiscountSchema[];
+  discounts: string
   security: string[];
   isListed: boolean;
   isApproved: boolean;
@@ -108,7 +109,8 @@ export interface IStaycation {
     common: number;
     beforeTax: number;
   },
-  discounts: IStaycationDiscount[];
+  // discounts: IStaycationDiscount[];
+  discounts: string;
   security: string[];
   isApproved: boolean;
 }
@@ -145,7 +147,8 @@ export interface IStaycationInput {
     common: number;
     beforeTax: number;
   },
-  discounts: IStaycationDiscount[];
+  // discounts: IStaycationDiscount[];
+  discounts: string;
   security: string[];
 }
 
