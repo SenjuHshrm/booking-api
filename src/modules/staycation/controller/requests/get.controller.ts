@@ -6,8 +6,13 @@ const getStaycationRoutes: Router = Router()
   .get('/list/:page/:limit', (req: Request, res: Response) => {
     let limit: number = parseInt(req.params.limit)
     let page: number = (parseInt(req.params.page) - 1) * limit
-    let isListed: boolean = req.query.listed === 'true'
-    return StaycationService.getListings(res, page, limit, isListed)
+    let query: { isListed: boolean, placeType?: string, descriptionFilter?: string } = {
+      isListed: req.query.listed === 'true',
+      placeType: <string>req.query.placeType,
+      descriptionFilter: <string>req.query.descriptionFilter
+    }
+    console.log(req.query.placeType)
+    return StaycationService.getListings(res, page, limit, query)
   })
 
   .get('/host-list/:userId/:page/:limit', passport.authenticate('jwt', { session: false }), (req: Request, res: Response) => {

@@ -21,10 +21,15 @@ let applyProprietorship = async (res: Response, form: IStaycationInput): Promise
   }
 }
 
-let getListings = async (res: Response, page: number, limit: number, isListed: boolean): Promise<Response<{ total: number, listings: IStaycation[] }>> => {
+let getListings = async (res: Response, page: number, limit: number, query: any): Promise<Response<{ total: number, listings: IStaycation[] }>> => {
   try {
-    let total = await Staycation.countDocuments({ isListed }).exec()
-    let listings: IStaycationSchema[] = <IStaycationSchema[]>(await Staycation.find({ isListed }).populate('host', { path: "_id name img" }).skip(page).limit(limit).exec())
+    let filterQuery: any = {}
+    Object.keys(query).forEach((x: string) => {
+      if(query[x] !== undefined) filterQuery[x] = query[x]
+    })
+    console.log(filterQuery)
+    let total = await Staycation.countDocuments({ ...filterQuery }).exec()
+    let listings: IStaycationSchema[] = <IStaycationSchema[]>(await Staycation.find({ ...filterQuery }).populate('host', { path: "_id name img" }).skip(page).limit(limit).exec())
     return res.status(200).json({ total, listings })
   } catch(e: any) {
     logger('staycation.controller', 'getListings', e.message, 'STC-0002')
