@@ -53,10 +53,23 @@ let requestToken = async (res: Response, accessToken: string): Promise<Response<
   }
 }
 
+let updatePassword = async (res: Response, userId: string, password: string): Promise<Response> => {
+  try {
+    let auth: IAuthSchema = <IAuthSchema>(await Auth.findOne({ userId }).exec())
+    auth.generateHash(password)
+    auth.save()
+    return res.status(200).json({ success: true })
+  } catch(e: any) {
+    logger('auth.controller', 'updatePassword', e.message, 'AUTH-0004')
+    return res.status(500).json({ code: 'AUTH-0004' })
+  }
+}
+
 const AuthService = {
   generateToken,
   logout,
-  requestToken
+  requestToken,
+  updatePassword
 }
 
 export default AuthService
