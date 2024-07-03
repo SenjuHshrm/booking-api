@@ -29,4 +29,8 @@ const getStaycationRoutes: Router = Router()
     return StaycationService.getGallery(res, req.params.id)
   })
 
+  .get('/recent-search/:id', passport.authenticate('jwt', { session: false }), (req: Request, res: Response) => {
+    return StaycationService.getRecentSearches(res, req.params.id)
+  })
+
 export default getStaycationRoutes

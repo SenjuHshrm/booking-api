@@ -6,6 +6,8 @@ import Auth from './schema/Auth.schema'
 import { IAuthSchema } from "./auth.interface";
 import { IPersonalAccessTokenSchema } from "./auth.interface";
 import { logger } from './../../utils';
+import User from "./../user/schema/User.schema";
+import { IUserSchema } from './../user/user.interface'
 
 let generateToken = async (res: Response, a: Express.User): Promise<Response<{ token: string }>> => {
   try {
@@ -65,11 +67,54 @@ let updatePassword = async (res: Response, userId: string, password: string): Pr
   }
 }
 
+let googleLogin = async (res: Response, authData: any, userData: any): Promise<Response> => {
+  try {
+    let test: IAuthSchema = <IAuthSchema>(await Auth.findOne({ google: authData.id, email: authData.email }).exec())
+    if(!test) {
+      let u: IUserSchema = <IUserSchema>(await new User({
+        name: {
+          fName: userData.name,
+          lName: userData.lastName
+        },
+        img: userData.photoUrl,
+        status: 'active',
+        identificationStat: 'pending'
+      }).save())
+
+      let a: IAuthSchema = <IAuthSchema>(await new Auth({
+        userId: u.id,
+        email: authData.email,
+        google: authData.id,
+        access: ['customer']
+      }).save())
+      let token: { access: string, refresh: string } = a.generateToken()
+      new PersonalAccessToken({
+        userId: u.id,
+        accessToken: token.access,
+        refreshToken: token.refresh
+      }).save()
+      return res.status(200).json({ token: token.access })
+    } else {
+      let t: { access: string, refresh: string } = test.generateToken()
+      new PersonalAccessToken({
+        userId: test.userId,
+        accessToken: t.access,
+        refreshToken: t.refresh
+      }).save()
+      return res.status(200).json({ token: t.access })
+    }
+  } catch(e: any) {
+    logger('auth.controller', 'googleLogin', e.message, 'AUTH-0005')
+    return res.status(500).json({ code: 'AUTH-0005' })
+  }
+}
+
 const AuthService = {
   generateToken,
   logout,
   requestToken,
-  updatePassword
+  updatePassword,
+  googleLogin
 }
 
 export default AuthService

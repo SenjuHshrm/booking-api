@@ -8,6 +8,7 @@ import { logger, randomPassword, sendPassword } from './../../utils';
 import ProprietorApplication from "./schema/ProprietorApplication.schema";
 import Staycation from './../staycation/schema/Staycation.schema'
 import Wishlist from './schema/Wishlist.schema';
+import { join } from 'path';
 
 let register = async (res: Response, u: IUserInput): Promise<Response<{ success: boolean }>> => {
   try {
@@ -147,6 +148,16 @@ let getWishlistByUser = async (res: Response, user: string): Promise<Response<IS
   }
 }
 
+let getUserProfileImg = async (res: Response, id: string): Promise<any> => {
+  try {
+    let user: IUserSchema = <IUserSchema>(await User.findById(id).exec())
+    res.status(200).sendFile(join(global.appRoot, `/uploads${user.img}`))
+  } catch(e: any) {
+    logger('user.controller', 'getUserProfileImg', e.message, 'USR-0009')
+    return res.status(500).json({ code: 'USR-0008' })
+  }
+}
+
 const UserService = {
   register,
   getUsersByAccess,
@@ -155,7 +166,8 @@ const UserService = {
   addAdmin,
   getUserProfile,
   updateUserProfile,
-  getWishlistByUser
+  getWishlistByUser,
+  getUserProfileImg
 }
 
 export default UserService

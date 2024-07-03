@@ -61,6 +61,16 @@ export interface IReviewSchema extends Document {
   media: string[];
 }
 
+export interface IRecentLocationSearchSchema extends Document {
+  user: typeof Types.ObjectId;
+  recentSearches: string[];
+}
+
+export interface IRecentLocationSearchInput {
+  user: string;
+  recentSearches: string;
+}
+
 export interface IStaycationDiscount {
   percentage: number;
   name: string;

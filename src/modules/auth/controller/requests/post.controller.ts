@@ -7,4 +7,8 @@ const postAuthRoutes: Router = Router()
     return AuthService.generateToken(res, req.user!)
   })
 
+  .post('/login/google', (req: Request, res: Response) => {
+    return AuthService.googleLogin(res, req.body.authData, req.body.userData)
+  })
+
 export default postAuthRoutes;

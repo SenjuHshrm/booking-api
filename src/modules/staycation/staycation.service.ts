@@ -3,9 +3,10 @@ import { Response } from "express";
 import Staycation from './schema/Staycation.schema'
 import ProprietorApplication from './../user/schema/ProprietorApplication.schema'
 import Review from './schema/Review.schema'
-import { IStaycation, IStaycationInput, IStaycationSchema } from './staycation.interface';
+import { IStaycation, IStaycationInput, IStaycationSchema, IRecentLocationSearchSchema, IRecentLocationSearchInput } from './staycation.interface';
 import { logger } from './../../utils'
 import User from '../user/schema/User.schema';
+import RecentLocationSearch from './schema/RecentLocationSearch.schema';
 
 let applyProprietorship = async (res: Response, form: IStaycationInput): Promise<Response<{ success: boolean }>> => {
   try {
@@ -29,7 +30,7 @@ let getListings = async (res: Response, page: number, limit: number, query: any)
     })
     console.log(filterQuery)
     let total = await Staycation.countDocuments({ ...filterQuery }).exec()
-    let listings: IStaycationSchema[] = <IStaycationSchema[]>(await Staycation.find({ ...filterQuery }).populate('host', { path: "_id name img" }).skip(page).limit(limit).exec())
+    let listings: IStaycationSchema[] = <IStaycationSchema[]>(await Staycation.find({ ...filterQuery }).populate({ path: 'host', select: "_id name img" }).skip(page).limit(limit).exec())
     return res.status(200).json({ total, listings })
   } catch(e: any) {
     logger('staycation.controller', 'getListings', e.message, 'STC-0002')
@@ -104,6 +105,16 @@ let getGallery = async (res: Response, _id: string): Promise<Response<any>> => {
   }
 }
 
+let getRecentSearches = async (res: Response, user: string): Promise<Response> => {
+  try {
+    let recSearch: IRecentLocationSearchSchema = <IRecentLocationSearchSchema>(await RecentLocationSearch.findOne({ user }))
+    if(!recSearch) return res.status(404).json([])
+    return res.status(200).json(recSearch.recentSearches)
+  } catch(e: any) {
+    logger('staycation.controller', 'getRecentSearches', e.message, 'STC-0009')
+    return res.status(500).json({ code: 'STC-0009' })
+  }
+}
 
 
 const StaycationService = {
@@ -114,7 +125,8 @@ const StaycationService = {
   removeStaycation,
   getHostListing,
   getDetails,
-  getGallery
+  getGallery,
+  getRecentSearches
 }
 
 export default StaycationService
