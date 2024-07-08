@@ -151,10 +151,10 @@ let getWishlistByUser = async (res: Response, user: string): Promise<Response<IS
 let getUserProfileImg = async (res: Response, id: string): Promise<any> => {
   try {
     let user: IUserSchema = <IUserSchema>(await User.findById(id).exec())
-    res.status(200).sendFile(join(global.appRoot, `/uploads${user.img}`))
+    return res.setHeader('Content-Type', 'image/*').status(200).sendFile(join(global.appRoot, `/uploads${user.img}`))
   } catch(e: any) {
     logger('user.controller', 'getUserProfileImg', e.message, 'USR-0009')
-    return res.status(500).json({ code: 'USR-0008' })
+    return res.status(500).json({ code: 'USR-0009' })
   }
 }
 

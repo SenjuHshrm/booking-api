@@ -12,7 +12,8 @@ import { IUserSchema } from './../user/user.interface'
 let generateToken = async (res: Response, a: Express.User): Promise<Response<{ token: string }>> => {
   try {
     let auth: IAuthSchema = <IAuthSchema>a
-    let token: { access: string, refresh: string } = auth.generateToken()
+    let user: IUserSchema = <IUserSchema>(await User.findById(auth.userId).exec())
+    let token: { access: string, refresh: string } = auth.generateToken(user.img)
     new PersonalAccessToken({
       userId: auth.userId,
       accessToken: token.access,
@@ -44,7 +45,8 @@ let requestToken = async (res: Response, accessToken: string): Promise<Response<
     let pat: IPersonalAccessTokenSchema = <IPersonalAccessTokenSchema>(await PersonalAccessToken.findOne({ accessToken, userId: decode.sub }).exec())
     if(!pat) return res.status(403).json({ msg: 'FORBIDDEN' })
     if(!jwt.verify(pat.refreshToken, env.JWT_SECRET)) return res.status(403).json({ msg: 'SESSION_EXPIRED' })
-    let { access, refresh} = auth.generateToken()
+    let user: IUserSchema = <IUserSchema>(await User.findById(auth.userId).exec())
+    let { access, refresh} = auth.generateToken(user.img)
     pat.accessToken = access
     pat.refreshToken = refresh
     pat.save()
@@ -73,8 +75,10 @@ let googleLogin = async (res: Response, authData: any, userData: any): Promise<R
     if(!test) {
       let u: IUserSchema = <IUserSchema>(await new User({
         name: {
-          fName: userData.name,
-          lName: userData.lastName
+          fName: userData.firstName,
+          mName: '',
+          lName: userData.lastName,
+          xName: ''
         },
         img: userData.photoUrl,
         status: 'active',
@@ -87,7 +91,7 @@ let googleLogin = async (res: Response, authData: any, userData: any): Promise<R
         google: authData.id,
         access: ['customer']
       }).save())
-      let token: { access: string, refresh: string } = a.generateToken()
+      let token: { access: string, refresh: string } = a.generateToken(u.img)
       new PersonalAccessToken({
         userId: u.id,
         accessToken: token.access,
@@ -95,7 +99,8 @@ let googleLogin = async (res: Response, authData: any, userData: any): Promise<R
       }).save()
       return res.status(200).json({ token: token.access })
     } else {
-      let t: { access: string, refresh: string } = test.generateToken()
+      let u: IUserSchema = <IUserSchema>(await User.findById(test.userId).exec())
+      let t: { access: string, refresh: string } = test.generateToken(u.img)
       new PersonalAccessToken({
         userId: test.userId,
         accessToken: t.access,

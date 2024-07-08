@@ -17,7 +17,7 @@ const postStaycationRoutes: Router = Router()
       // location: { ...JSON.parse(req.body.location) },
       // location: { type: '', coordinates: [] },
       address: { ...JSON.parse(req.body.address), country: 'PH' },
-      details: req.body.details,
+      details: { ...JSON.parse(req.body.details) },
       media: {
         cover: '',
         imgs: [],

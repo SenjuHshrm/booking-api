@@ -8,7 +8,7 @@ export interface IAuthSchema extends Document {
   access: keyof typeof EUserType[];
   generateHash: (password: string) => void;
   compareHash: (password: string) => boolean;
-  generateToken: () => { access: string, refresh: string }
+  generateToken: (img: string) => { access: string, refresh: string }
 }
 
 export interface IPersonalAccessTokenSchema extends Document {

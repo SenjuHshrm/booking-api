@@ -22,9 +22,9 @@ AuthSchema.methods.compareHash = function (password: string) {
   return bcryptjs.compareSync(password, this.password)
 }
 
-AuthSchema.methods.generateToken = function () {
+AuthSchema.methods.generateToken = function (img: string) {
   return {
-    access: jwt.sign({ sub: this.userId, access: this.access }, env.JWT_SECRET, { expiresIn: '5m' }),
+    access: jwt.sign({ sub: this.userId, access: this.access, img }, env.JWT_SECRET, { expiresIn: '5m' }),
     refresh: jwt.sign({ sub: this.userId, email: this.email }, env.JWT_SECRET, { expiresIn: '1w' })
   }
 }
