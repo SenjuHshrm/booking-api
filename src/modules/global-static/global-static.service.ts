@@ -15,7 +15,7 @@ let addStatic = async (res: Response, type: string, values: any): Promise<Respon
       statics.markModified('values')
       statics.save()
     }
-    return res.sendStatus(201)
+    return res.status(201).json({ success: true })
   } catch(e: any) {
     logger('global-static.controller', 'addStatic', e.message, 'GST-0001')
     return res.status(500).json({ code: 'GST-0001' })
@@ -55,10 +55,27 @@ let deleteStatic = async (res: Response, id: string): Promise<Response<null>> =>
 let getStaticByType = async (res: Response, type: string): Promise<Response<any>> => {
   try {
     let statics: IGlobalStaticSchema = <IGlobalStaticSchema>(await GlobalStatic.findOne({ type }).exec())
+    if(!statics) {
+      let gs: IGlobalStaticSchema = await new GlobalStatic({ type, values: [] }).save()
+      return res.status(200).json({ data: gs.values })
+    }
     return res.status(200).json({ data: statics.values })
   } catch(e: any) {
     logger('global-static.controller', 'getStaticByType', e.message, 'GST-0005')
     return res.status(500).json({ code: 'GST-0005' })
+  }
+}
+
+let deleteValueFromStatic = async (res: Response, type: string, val: any): Promise<Response<any>> => {
+  try {
+    let s: IGlobalStaticSchema = <IGlobalStaticSchema>(await GlobalStatic.findOne({ type }).exec())
+    s.values = (<any>s.values).filter((v: any) => JSON.stringify(v) !== JSON.stringify(val))
+    s.markModified('values')
+    s.save()
+    return res.status(200).json({ success: true })
+  } catch(e: any) {
+    logger('global-static.controller', 'deleteValueFromStatic', e.message, 'GST-0006')
+    return res.status(500).json({ code: 'GST-0006' })
   }
 }
 
@@ -67,7 +84,8 @@ const GlobalStaticService = {
   getStatic,
   updateStatic,
   deleteStatic,
-  getStaticByType
+  getStaticByType,
+  deleteValueFromStatic
 }
 
 export default GlobalStaticService

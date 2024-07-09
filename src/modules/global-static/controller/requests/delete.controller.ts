@@ -2,8 +2,8 @@ import { Router, Request, Response } from "express";
 import GlobalStaticService from '../../global-static.service'
 
 const deleteGlobalStaticRoutes: Router = Router()
-  .put('/static/:id', (req: Request, res: Response) => {
-    return GlobalStaticService.deleteStatic(res, req.params.id)
+  .delete('/static/:type', (req: Request, res: Response) => {
+    return GlobalStaticService.deleteValueFromStatic(res, req.params.type, req.body)
   })
 
 export default deleteGlobalStaticRoutes
