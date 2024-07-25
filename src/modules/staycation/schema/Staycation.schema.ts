@@ -18,6 +18,7 @@ let StaycationSchema: Schema<IStaycationSchema> = new Schema<IStaycationSchema>(
   name: { type: String, required: true },
   descriptionFilter: { type: [String], required: true },
   descriptionText: { type: [String], required: true },
+  placeDescription: String,
   placeType: { type: String, enum: { values: Object.keys(EPlaceType) } },
   // location: {
   //   type: String,
@@ -32,6 +33,8 @@ let StaycationSchema: Schema<IStaycationSchema> = new Schema<IStaycationSchema>(
     province: { type: String, required: true },
     zip: { type: String, required: true }
   },
+  landmark: String,
+  // bedrooms: [],
   details: Schema.Types.Mixed,
   amenities: [String],
   media: {

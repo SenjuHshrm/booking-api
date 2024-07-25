@@ -9,6 +9,7 @@ import ProprietorApplication from "./schema/ProprietorApplication.schema";
 import Staycation from './../staycation/schema/Staycation.schema'
 import Wishlist from './schema/Wishlist.schema';
 import { join } from 'path';
+import moment from 'moment';
 
 let register = async (res: Response, u: IUserInput): Promise<Response<{ success: boolean }>> => {
   try {
@@ -70,6 +71,7 @@ let setAsProprietor = async (res: Response, userId: string, staycationId: string
   try {
     await Auth.findOneAndUpdate({ userId }, { $push: { access: 'host' } }).exec()
     await Staycation.findOneAndUpdate({ _id: staycationId }, { $set: { isApproved: true } }).exec()
+    await User.findByIdAndUpdate(userId, { $set: { approvedAsProprietorOn: moment(new Date()) } }).exec()
     await ProprietorApplication.findByIdAndDelete(propAppId).exec()
     return res.status(200).json({ success: true })
   } catch(e: any) {

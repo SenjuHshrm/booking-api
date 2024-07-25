@@ -14,6 +14,8 @@ export interface IStaycationSchema extends Document {
   name: string;
   descriptionFilter: string[];
   descriptionText: string[];
+  placeDescription: string;
+  // offers: string;
   placeType: keyof typeof EPlaceType;
   // location: {
   //   type: string,
@@ -28,6 +30,11 @@ export interface IStaycationSchema extends Document {
     province: string;
     zip: string;
   };
+  landmark: string;
+  // bedrooms?: {
+  //   img: string;
+  //   desc: string;
+  // }[];
   details: typeof Schema.Types.Mixed;
   amenities: string[];
   media: {
@@ -93,6 +100,8 @@ export interface IStaycation {
   name: string;
   descriptionFilter: string[];
   descriptionText: string[];
+  placeDescription: string;
+  // offers: string;
   placeType: keyof typeof EPlaceType;
   location: {
     type: string,
@@ -107,6 +116,8 @@ export interface IStaycation {
     province: string;
     zip: string;
   };
+  landmark: string;
+  // bedrooms: { img: string, desc: string }[];
   details: any;
   amenities: string[];
   media: {
@@ -131,6 +142,8 @@ export interface IStaycationInput {
   serverDirName: string;
   descriptionFilter: string[];
   descriptionText: string[];
+  placeDescription: string;
+  // offers: string;
   placeType: keyof typeof EPlaceType;
   // location: {
   //   type: string,
@@ -145,6 +158,8 @@ export interface IStaycationInput {
     province: string;
     zip: string;
   };
+  landmark: string;
+  bedrooms: { img: string, desc: string }[];
   details: any;
   amenities: string[];
   media: {

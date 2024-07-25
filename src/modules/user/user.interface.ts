@@ -11,6 +11,7 @@ export interface IUserSchema extends Document {
   status: 'active' | 'suspended' | 'terminated';
   identificationStat: 'pending' | 'approved' | 'disapproved';
   suspendedUntil: string;
+  approvedAsProprietorOn: string;
   setImg: (img: string, email: string) => void;
 }
 
@@ -40,6 +41,7 @@ export interface IUser {
   status: 'active' | 'suspended' | 'terminated';
   identificationStat: 'pending' | 'approved' | 'disapproved';
   suspendedUntil: string;
+  approvedAsProprietorOn: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -26,7 +26,8 @@ let UserSchema: Schema<IUserSchema> = new Schema<IUserSchema>({
   payment: { type: [Types.ObjectId], ref: 'payment' },
   status: { type: String, required: true, enum: { values: ['active', 'suspended', 'terminated'] } },
   identificationStat: { type: String, required: true, enum: { values: ['pending', 'approved', 'disapproved'] } },
-  suspendedUntil: String
+  suspendedUntil: String,
+  approvedAsProprietorOn: String
 }, {
   timestamps: true
 })
