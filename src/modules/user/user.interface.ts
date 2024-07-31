@@ -1,5 +1,4 @@
 import { Document, Types } from "mongoose";
-import { IPayment } from "../payment/payment.interface";
 
 export interface IUserSchema extends Document {
   name: IUserFullName;
@@ -7,7 +6,6 @@ export interface IUserSchema extends Document {
   desc?: IUserDescription;
   address: string;
   contact: string;
-  payment?: typeof Types.ObjectId[];
   status: 'active' | 'suspended' | 'terminated';
   identificationStat: 'pending' | 'approved' | 'disapproved';
   suspendedUntil: string;
@@ -37,7 +35,6 @@ export interface IUser {
   desc: IUserDescription;
   address?: string;
   contact: string;
-  payment?: IPayment[];
   status: 'active' | 'suspended' | 'terminated';
   identificationStat: 'pending' | 'approved' | 'disapproved';
   suspendedUntil: string;

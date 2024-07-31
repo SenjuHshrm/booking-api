@@ -1,81 +1,86 @@
+import { IUserInput } from './../user/user.interface';
 import { Response } from "express"
 import Payment from './schema/Payment.schema'
 import { IPaymentSchema, IPaymentInput, IPayment } from "./payment.interface"
 import { logger, decrypt } from './../../utils'
+import { env } from './../../config'
 
-let addPayment = async (res: Response, payment: IPaymentInput): Promise<Response<null | { code: string }>> => {
+const authBasic: string = `Basic ${Buffer.from(env.PAYMONGO_SK + ':').toString('base64')}`
+const baseURL: string = `${env.PAYMONGO_URL}/${env.PAYMONGO_URL_VER}`
+
+let addCustomer = async (userId: string, data: IUserInput, contact: string) => {
   try {
-    await new Payment(payment).save()
-    return res.sendStatus(201)
+    let opt = {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'content-type': 'application/json',
+        authorization: authBasic
+      },
+      body: JSON.stringify({
+        data: {
+          attributes: {
+            first_name: data.fName,
+            last_name: data.lName,
+            phone: contact,
+            email: data.email,
+            default_device: 'email'
+          }
+        }
+      })
+    }
+    let req = await fetch(`${baseURL}/customers`, opt)
+    let res = await req.json()
+    new Payment({
+      userId,
+      clientId: res.data.id
+    }).save()
   } catch(e: any) {
-    logger('payment.controller', 'addPayment', e.message, 'PYM-0001')
-    return res.status(500).json({ code: 'PYM-0001' })
+    logger('payment.controller', 'addCustomer', e.message, 'PYMT-0001')
   }
 }
 
-let getPaymentList = async (res: Response, userId: string): Promise<Response<IPayment[] | { code: string }>> => {
+let getCustomerPaymentMethod = async (res: Response, userId: string): Promise<Response> => {
   try {
-    let list: IPaymentSchema[] = <IPaymentSchema[]>(await Payment.find({ userId }).exec())
-    let resp: IPayment[] = list.map((p: IPaymentSchema) => {
-      return {
-        _id: p.id,
-        paymentType: p.paymentType,
-        userId: p.userId.toString(),
-        name: p.name,
-        bankName: p.bankName,
-        acctNum: (p.acctNum) ? decrypt(p.acctNum) : '',
-        cardNum: (p.cardNum) ? decrypt(p.cardNum) : '',
-        cvv: (p.cvv) ? decrypt(p.cvv) : '',
-        createdAt: p.toJSON().createdAt,
-        updatedAt: p.toJSON().updatedAt
+    let opt = {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        authorization: authBasic
       }
-    })
+    }
+    let payment: IPaymentSchema = <IPaymentSchema>(await Payment.findOne({ userId }).exec())
+    let req = await fetch(`${baseURL}/customers/${payment.clientId}/payment_methods`, opt)
+    let resp = await req.json()
     return res.status(200).json(resp)
   } catch(e: any) {
-    logger('payment.controller', 'getPaymentList', e.message, 'PYM-0002')
-    return res.status(500).json({ code: 'PYM-0002' })
+    logger('payment.controller', 'getCustomerPaymentMethod', e.message, 'PYMT-0002')
+    return res.status(500).json({ code: 'PYMT-0002' })
   }
 }
 
-let getPaymentDetails = async(res: Response, _id: string): Promise<Response<IPayment | { code: string }>> => {
+let getMerchantPaymentMethods = async (res: Response): Promise<Response> => {
   try {
-    let details: IPaymentSchema = <IPaymentSchema>(await Payment.findById(_id).exec())
-    details.acctNum = (details.acctNum) ? decrypt(details.acctNum) : ''
-    details.cardNum = (details.cardNum) ? decrypt(details.cardNum) : ''
-    details.cvv = (details.cvv) ? decrypt(details.cvv) : ''
-    return res.status(200).json(details)
+    let opt = {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        authorization: authBasic
+      }
+    }
+    let req = await fetch(`${baseURL}/merchants/capabilities/payment_methods`, opt)
+    let resp = await req.json()
+    return res.status(200).json(resp)
   } catch(e: any) {
-    logger('payment.controller', 'getPaymentDetails', e.message, 'PYM-0003')
-    return res.status(500).json({ code: 'PYM-0003' })
-  }
-}
-
-let updatePaymentDetails = async (res: Response, _id: string, data: IPaymentInput): Promise<Response<null | { code: string }>> => {
-  try {
-    await Payment.findByIdAndUpdate(_id, { $set: { ...data } }).exec()
-    return res.sendStatus(200)
-  } catch(e: any) {
-    logger('payment.controller', 'updatePaymentDetails', e.message, 'PYM-0004')
-    return res.status(500).json({ code: 'PYM-0004' })
-  }
-}
-
-let removePaymentMethod = async (res: Response, _id: string): Promise<Response<null | { code: string }>> => {
-  try {
-    await Payment.findByIdAndDelete(_id).exec()
-    return res.sendStatus(200)
-  } catch(e: any) {
-    logger('payment.controller', 'removePaymentMethod', e.message, 'PYM-0005')
-    return res.status(500).json({ code: 'PYM-0005' })
+    logger('payment.controller', 'getMerchantPaymentMethods', e.message, 'PYMT-0003')
+    return res.status(500).json({ code: 'PYMT-0003' })
   }
 }
 
 const PaymentService = {
-  addPayment,
-  getPaymentList,
-  getPaymentDetails,
-  updatePaymentDetails,
-  removePaymentMethod
+  addCustomer,
+  getCustomerPaymentMethod,
+  getMerchantPaymentMethods
 }
 
 export default PaymentService

@@ -23,7 +23,6 @@ let UserSchema: Schema<IUserSchema> = new Schema<IUserSchema>({
   desc: UserDescription,
   address: String,
   contact: String,
-  payment: { type: [Types.ObjectId], ref: 'payment' },
   status: { type: String, required: true, enum: { values: ['active', 'suspended', 'terminated'] } },
   identificationStat: { type: String, required: true, enum: { values: ['pending', 'approved', 'disapproved'] } },
   suspendedUntil: String,

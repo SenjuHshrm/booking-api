@@ -8,6 +8,7 @@ import { IPersonalAccessTokenSchema } from "./auth.interface";
 import { logger } from './../../utils';
 import User from "./../user/schema/User.schema";
 import { IUserSchema } from './../user/user.interface'
+import PaymentService from './../payment/payment.service'
 
 let generateToken = async (res: Response, a: Express.User): Promise<Response<{ token: string }>> => {
   try {
@@ -97,6 +98,7 @@ let googleLogin = async (res: Response, authData: any, userData: any): Promise<R
         accessToken: token.access,
         refreshToken: token.refresh
       }).save()
+      PaymentService.addCustomer(u.id, { fName: userData.firstName, lName: userData.lastName, email: authData.email }, '')
       return res.status(200).json({ token: token.access })
     } else {
       let u: IUserSchema = <IUserSchema>(await User.findById(test.userId).exec())

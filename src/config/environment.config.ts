@@ -26,6 +26,10 @@ export const env = {
   ADMIN_ADDRESS: <string>process.env.ADMIN_ADDRESS,
   ENCRYPT_ALGORITHM: <string>process.env.ENCRYPT_ALGORITHM,
   ENCRYPT_KEY: <string>process.env.ENCRYPT_KEY,
-  ENCRYPT_IV: <string>process.env.ENCRYPT_IV
+  ENCRYPT_IV: <string>process.env.ENCRYPT_IV,
+  PAYMONGO_PK: <string>process.env.PAYMONGO_PK,
+  PAYMONGO_SK: <string>process.env.PAYMONGO_SK,
+  PAYMONGO_URL: <string>process.env.PAYMONGO_URL,
+  PAYMONGO_URL_VER: <string>process.env.PAYMONGO_URL_VER
 }
 

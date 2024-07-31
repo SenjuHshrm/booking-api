@@ -10,6 +10,7 @@ import Staycation from './../staycation/schema/Staycation.schema'
 import Wishlist from './schema/Wishlist.schema';
 import { join } from 'path';
 import moment from 'moment';
+import PaymentService from './../payment/payment.service'
 
 let register = async (res: Response, u: IUserInput): Promise<Response<{ success: boolean }>> => {
   try {
@@ -35,6 +36,7 @@ let register = async (res: Response, u: IUserInput): Promise<Response<{ success:
     auth.generateHash(newPassword)
     auth.save()
     sendPassword(u.email, newPassword)
+    PaymentService.addCustomer(user.id, u, '')
     return res.status(201).json({ success: true })
   } catch(e: any) {
     logger('user.controller', 'register', e.message, 'USR-0001')

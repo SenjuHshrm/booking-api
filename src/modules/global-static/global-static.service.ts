@@ -55,6 +55,7 @@ let deleteStatic = async (res: Response, id: string): Promise<Response<null>> =>
 let getStaticByType = async (res: Response, type: string): Promise<Response<any>> => {
   try {
     let statics: IGlobalStaticSchema = <IGlobalStaticSchema>(await GlobalStatic.findOne({ type }).exec())
+    console.log(statics)
     if(!statics) {
       let gs: IGlobalStaticSchema = await new GlobalStatic({ type, values: [] }).save()
       return res.status(200).json({ data: gs.values })
