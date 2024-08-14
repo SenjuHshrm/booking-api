@@ -6,5 +6,5 @@ export interface IGlobalStaticSchema extends Document {
 }
 
 export enum EStaticType {
-  "amenity", "bank", "service_fee"
+  "amenity", "bank", "service_fee", "earning_fee"
 }
