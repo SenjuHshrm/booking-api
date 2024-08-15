@@ -10,6 +10,7 @@ export interface IUserSchema extends Document {
   identificationStat: 'pending' | 'approved' | 'disapproved';
   suspendedUntil: string;
   approvedAsProprietorOn: string;
+  paymentClientId: string;
   setImg: (img: string, email: string) => void;
 }
 
@@ -39,13 +40,14 @@ export interface IUser {
   identificationStat: 'pending' | 'approved' | 'disapproved';
   suspendedUntil: string;
   approvedAsProprietorOn: string;
+  paymentClientId: string;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface IUserPrev {
   _id: string;
-  name: string;
+  name: IUserFullName;
   img: string;
 }
 

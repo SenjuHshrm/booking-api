@@ -4,40 +4,38 @@ import { IStaycationInput } from './../../staycation.interface';
 import { uploadStaycationMedia } from '../../../../middleware';
 
 const postStaycationRoutes: Router = Router()
-  .post('/apply', uploadStaycationMedia.array('img'), (req: Request, res: Response) => {
-    let imgs: { desc: string, filename: string }[] = JSON.parse(req.body.imgDesc)
-    let prices = { ...JSON.parse(req.body.price) }
+  .post('/apply', uploadStaycationMedia.fields([{ name: 'genImg' }, { name: 'bedroom' }]), (req: Request, res: Response) => {
+    let discount = JSON.parse(req.body.discounts)
+    let genImg = JSON.parse(req.body.genImgList)
+    let bedroom = JSON.parse(req.body.bedroomList)
     let staycation: IStaycationInput = {
       host: req.body.host,
-      name: req.body.name,
-      serverDirName: req.body.serverDirName,
-      descriptionFilter: JSON.parse(req.body.descriptionFilter),
-      descriptionText: req.body.description,
-      placeDescription: req.body.detailedDescription,
-      // offers: '',
+      descriptionFilter: req.body.descriptionFilter,
       placeType: req.body.placeType,
-      // location: { ...JSON.parse(req.body.location) },
-      // location: { type: '', coordinates: [] },
+      maxBooking: parseInt(req.body.maxBooking),
       address: { ...JSON.parse(req.body.address), country: 'PH' },
       landmark: req.body.landmark,
-      bedrooms: [],
-      details: { ...JSON.parse(req.body.details) },
-      media: {
-        cover: '',
-        imgs: [],
-      },
+      location: '',
+      details: JSON.parse(req.body.details),
       amenities: JSON.parse(req.body.amenities),
-      reservationConfirmation: req.body.reservationConfirmation,
-      welcomingGuest: req.body.welcomingGuest,
-      price: { common: prices.price, beforeTax: prices.beforeTax },
-      // discounts: [ ...JSON.parse(req.body.discounts) ],
-      discounts: req.body.discounts,
-      security: [ ...JSON.parse(req.body.security) ],
-    }
-    let fileArrLn: number = imgs.length
-    for(let i = 0; i < fileArrLn; i++) {
-      let dir: string = `/staycation/${req.body.serverDirName}/${imgs[i].filename}`;
-      (imgs[i].desc === 'cover') ? staycation.media.cover = dir : staycation.media.imgs.push(dir)
+      name: req.body.name,
+      descriptionText: JSON.parse(req.body.descriptionText),
+      detailedDescription: req.body.detailedDescription,
+      discounts: {
+        discounts: discount.discounts,
+        value: parseInt(discount.value)
+      },
+      security: JSON.parse(req.body.security),
+      price: parseInt(req.body.price),
+      cancellationPolicy: JSON.parse(req.body.cancellationPolicy),
+      houseRules: JSON.parse(req.body.houseRules),
+      houseRulesDetailed: req.body.houseRulesDetailed,
+      bookingProcess: req.body.bookingProcess,
+      genImgList: genImg.map((gi: string) => `/staycation/${req.body.serverDirName}/gen-img/${gi}`),
+      cover: '',
+      bedroomList: bedroom.map((br: string) => `/staycation/${req.body.serverDirName}/bedroom/${br}`),
+      isListed: false,
+      isApproved: false
     }
     return StaycationService.applyProprietorship(res, staycation)
   })

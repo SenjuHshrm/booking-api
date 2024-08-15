@@ -1,4 +1,5 @@
 import { IUserInput } from './../user/user.interface';
+import User from './../user/schema/User.schema'
 import { Response } from "express"
 import Payment from './schema/Payment.schema'
 import { IPaymentSchema, IPaymentInput, IPayment } from "./payment.interface"
@@ -31,10 +32,11 @@ let addCustomer = async (userId: string, data: IUserInput, contact: string) => {
     }
     let req = await fetch(`${baseURL}/customers`, opt)
     let res = await req.json()
-    new Payment({
-      userId,
-      clientId: res.data.id
-    }).save()
+    // new Payment({
+    //   userId,
+    //   clientId: res.data.id
+    // }).save()
+    await User.findOneAndUpdate({ _id: userId }, { $set: { paymentClientId: res.data.id } }).exec()
   } catch(e: any) {
     logger('payment.controller', 'addCustomer', e.message, 'PYMT-0001')
   }
@@ -42,17 +44,19 @@ let addCustomer = async (userId: string, data: IUserInput, contact: string) => {
 
 let getCustomerPaymentMethod = async (res: Response, userId: string): Promise<Response> => {
   try {
-    let opt = {
-      method: 'GET',
-      headers: {
-        accept: 'application/json',
-        authorization: authBasic
-      }
-    }
-    let payment: IPaymentSchema = <IPaymentSchema>(await Payment.findOne({ userId }).exec())
-    let req = await fetch(`${baseURL}/customers/${payment.clientId}/payment_methods`, opt)
-    let resp = await req.json()
-    return res.status(200).json(resp)
+    // let opt = {
+    //   method: 'GET',
+    //   headers: {
+    //     accept: 'application/json',
+    //     authorization: authBasic
+    //   }
+    // }
+    // let payment: IPaymentSchema = <IPaymentSchema>(await Payment.findOne({ userId }).exec())
+    // let req = await fetch(`${baseURL}/customers/${payment.clientId}/payment_methods`, opt)
+    // let resp = await req.json()
+    // return res.status(200).json(resp)
+    let piList: IPaymentSchema[] = <IPaymentSchema[]>(await Payment.find({ userId }).exec())
+    return res.status(200).json(piList)
   } catch(e: any) {
     logger('payment.controller', 'getCustomerPaymentMethod', e.message, 'PYMT-0002')
     return res.status(500).json({ code: 'PYMT-0002' })
@@ -61,15 +65,16 @@ let getCustomerPaymentMethod = async (res: Response, userId: string): Promise<Re
 
 let getMerchantPaymentMethods = async (res: Response): Promise<Response> => {
   try {
-    let opt = {
-      method: 'GET',
-      headers: {
-        accept: 'application/json',
-        authorization: authBasic
-      }
-    }
-    let req = await fetch(`${baseURL}/merchants/capabilities/payment_methods`, opt)
-    let resp = await req.json()
+    // let opt = {
+    //   method: 'GET',
+    //   headers: {
+    //     accept: 'application/json',
+    //     authorization: authBasic
+    //   }
+    // }
+    // let req = await fetch(`${baseURL}/merchants/capabilities/payment_methods`, opt)
+    // let resp = await req.json()
+    let resp = env.PAYMONGO_PAYMENT_METHODS
     return res.status(200).json(resp)
   } catch(e: any) {
     logger('payment.controller', 'getMerchantPaymentMethods', e.message, 'PYMT-0003')

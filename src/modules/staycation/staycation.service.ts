@@ -93,12 +93,8 @@ let getDetails = async (res: Response, _id: string): Promise<Response<IStaycatio
 let getGallery = async (res: Response, _id: string): Promise<Response<any>> => {
   try {
     let detail: IStaycationSchema = <IStaycationSchema>(await Staycation.findById(_id, { media: 1 }).exec())
-    let resp: string[] = []
-    resp.push(<string>detail.media.cover)
-    detail!.media.imgs.forEach((img: string) => {
-      resp.push(img)
-    })
-    return res.status(200).json(resp)
+    let gallery: string[] = detail!.genImgList, cover: string = detail!.cover
+    return res.status(200).json({ gallery, cover})
   } catch(e: any) {
     logger('staycation.controller', 'getGallery', e.message, 'STC-0008')
     return res.status(500).json({ code: 'STC-0008' })

@@ -1,55 +1,43 @@
 import { Schema, Document, Types } from "mongoose";
 import { IUserPrev } from './../user/user.interface';
+
 export interface IStaycationSchema extends Document {
-  // name: string;
-  // host: typeof Types.ObjectId;
-  // details: typeof Schema.Types.Mixed[];
-  // currentRating: number; 
-  // desc: string;
-  // media: string[];
-  // pricing: typeof Schema.Types.Mixed[];
-  // promos: typeof Schema.Types.Mixed[];
-  // amenities: string[];
   host: typeof Types.ObjectId;
-  name: string;
-  descriptionFilter: string[];
-  descriptionText: string[];
-  placeDescription: string;
-  // offers: string;
+  descriptionFilter: string;
   placeType: keyof typeof EPlaceType;
-  // location: {
-  //   type: string,
-  //   coordinates: any
-  // };
+  maxBooking: number;
   address: {
-    country: string;
-    unit?: string;
-    street: string;
-    brgy?: string;
-    city: string;
-    province: string;
-    zip: string;
+    country: string,
+    unit: string,
+    street: string,
+    brgy: string,
+    city: string,
+    province: string,
+    zip: string
   };
   landmark: string;
-  // bedrooms?: {
-  //   img: string;
-  //   desc: string;
-  // }[];
-  details: typeof Schema.Types.Mixed;
+  location: string;
+  details: any;
   amenities: string[];
-  media: {
-    cover: string;
-    imgs: string[];
-  },
-  reservationConfirmation: keyof typeof EReservationConfirmation;
-  welcomingGuest: keyof typeof EWelcomingGuest;
-  price: {
-    common: number;
-    beforeTax: number;
-  },
-  // discounts: IStaycationDiscountSchema[];
-  discounts: string
+  name: string;
+  descriptionText: string[];
+  detailedDescription: string;
+  discounts: {
+    discounts: string,
+    value: number
+  };
   security: string[];
+  price: number;
+  cancellationPolicy: {
+    cancellationPolicy: string;
+    nonRefundable: string;
+  };
+  houseRules: string[];
+  houseRulesDetailed: string;
+  bookingProcess: string;
+  genImgList: string[];
+  cover: string;
+  bedroomList: string[];
   isListed: boolean;
   isApproved: boolean;
 }
@@ -97,84 +85,86 @@ export interface IReview {
 export interface IStaycation {
   _id: string;
   host: IUserPrev;
-  name: string;
-  descriptionFilter: string[];
-  descriptionText: string[];
-  placeDescription: string;
-  // offers: string;
+  descriptionFilter: string;
   placeType: keyof typeof EPlaceType;
-  location: {
-    type: string,
-    coordinates: any
-  };
+  maxBooking: number;
   address: {
-    country: string;
-    unit?: string;
-    street: string;
-    brgy?: string;
-    city: string;
-    province: string;
-    zip: string;
+    country: string,
+    unit: string,
+    street: string,
+    brgy: string,
+    city: string,
+    province: string,
+    zip: string
   };
   landmark: string;
-  // bedrooms: { img: string, desc: string }[];
+  location: string;
   details: any;
   amenities: string[];
-  media: {
-    cover: string;
-    imgs: string[];
-  },
-  reservationConfirmation: keyof typeof EReservationConfirmation;
-  welcomingGuest: keyof typeof EWelcomingGuest;
-  price: {
-    common: number;
-    beforeTax: number;
-  },
-  // discounts: IStaycationDiscount[];
-  discounts: string;
+  name: string;
+  descriptionText: string[];
+  detailedDescription: string;
+  discounts: {
+    discounts: string,
+    value: number
+  };
   security: string[];
+  price: number;
+  cancellationPolicy: {
+    cancellationPolicy: string;
+    nonRefundable: string;
+  };
+  houseRules: string[];
+  houseRulesDetailed: string;
+  bookingProcess: string;
+  genImgList: string[];
+  cover: string;
+  bedroomList: string[];
+  isListed: boolean;
   isApproved: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface IStaycationInput {
   host: string;
-  name: string;
-  serverDirName: string;
-  descriptionFilter: string[];
-  descriptionText: string[];
-  placeDescription: string;
-  // offers: string;
+  descriptionFilter: string;
   placeType: keyof typeof EPlaceType;
-  // location: {
-  //   type: string,
-  //   coordinates: any
-  // };
+  maxBooking: number;
   address: {
-    country: string;
-    unit?: string;
-    street: string;
-    brgy?: string;
-    city: string;
-    province: string;
-    zip: string;
+    country: string,
+    unit: string,
+    street: string,
+    brgy: string,
+    city: string,
+    province: string,
+    zip: string
   };
   landmark: string;
-  bedrooms: { img: string, desc: string }[];
+  location: string;
   details: any;
   amenities: string[];
-  media: {
-    cover: string;
-    imgs: string[];
-  },
-  reservationConfirmation: keyof typeof EReservationConfirmation;
-  welcomingGuest: keyof typeof EWelcomingGuest;
-  price: {
-    common: number;
-    beforeTax: number;
-  },
-  // discounts: IStaycationDiscount[];
-  discounts: string;
+  name: string;
+  descriptionText: string[];
+  detailedDescription: string;
+  discounts: {
+    discounts: string,
+    value: number
+  };
   security: string[];
+  price: number;
+  cancellationPolicy: {
+    cancellationPolicy: string;
+    nonRefundable: string;
+  };
+  houseRules: string[];
+  houseRulesDetailed: string;
+  bookingProcess: string;
+  genImgList: string[];
+  cover: string;
+  bedroomList: string[];
+  isListed: boolean;
+  isApproved: boolean;
 }
 
 export enum EPlaceType {
@@ -188,3 +178,58 @@ export enum EReservationConfirmation {
 export enum EWelcomingGuest {
   "tarago", "exp_guest"
 }
+
+
+// export interface IStaycationSchema extends Document {
+//   // name: string;
+//   // host: typeof Types.ObjectId;
+//   // details: typeof Schema.Types.Mixed[];
+//   // currentRating: number; 
+//   // desc: string;
+//   // media: string[];
+//   // pricing: typeof Schema.Types.Mixed[];
+//   // promos: typeof Schema.Types.Mixed[];
+//   // amenities: string[];
+//   host: typeof Types.ObjectId;
+//   name: string;
+//   descriptionFilter: string[];
+//   descriptionText: string[];
+//   placeDescription: string;
+//   // offers: string;
+//   placeType: keyof typeof EPlaceType;
+//   // location: {
+//   //   type: string,
+//   //   coordinates: any
+//   // };
+//   address: {
+//     country: string;
+//     unit?: string;
+//     street: string;
+//     brgy?: string;
+//     city: string;
+//     province: string;
+//     zip: string;
+//   };
+//   landmark: string;
+//   // bedrooms?: {
+//   //   img: string;
+//   //   desc: string;
+//   // }[];
+//   details: typeof Schema.Types.Mixed;
+//   amenities: string[];
+//   media: {
+//     cover: string;
+//     imgs: string[];
+//   },
+//   reservationConfirmation: keyof typeof EReservationConfirmation;
+//   welcomingGuest: keyof typeof EWelcomingGuest;
+//   price: {
+//     common: number;
+//     beforeTax: number;
+//   },
+//   // discounts: IStaycationDiscountSchema[];
+//   discounts: string
+//   security: string[];
+//   isListed: boolean;
+//   isApproved: boolean;
+// }

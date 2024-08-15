@@ -30,6 +30,7 @@ export const env = {
   PAYMONGO_PK: <string>process.env.PAYMONGO_PK,
   PAYMONGO_SK: <string>process.env.PAYMONGO_SK,
   PAYMONGO_URL: <string>process.env.PAYMONGO_URL,
-  PAYMONGO_URL_VER: <string>process.env.PAYMONGO_URL_VER
+  PAYMONGO_URL_VER: <string>process.env.PAYMONGO_URL_VER,
+  PAYMONGO_PAYMENT_METHODS: JSON.parse(<string>process.env.PAYMONGO_PAYMENT_METHODS)
 }
 
