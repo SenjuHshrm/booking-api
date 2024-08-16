@@ -9,10 +9,11 @@ const getUserRoutes: Router = Router()
     return UserService.getUsersByAccess(res, req.params.access, page, limit)
   })
 
-  .get('/proprietor-application/:page/:limit', passport.authenticate('jwt', { session: false }), (req: Request, res: Response) => {
+  // .get('/proprietor-application/:page/:limit', passport.authenticate('jwt', { session: false }), (req: Request, res: Response) => {
+  .get('/proprietor-application/:page/:limit', (req: Request, res: Response) => {
     let limit: number = parseInt(req.params.limit)
     let page: number = (parseInt(req.params.page) - 1) * limit
-    return UserService.getProprietorApplications(res, page, limit)
+    return UserService.getProprietorApplications(res, page, limit, <string>req.query.isApproved)
   })
 
   .get('/profile/:id', passport.authenticate('jwt', { session: false }), (req: Request, res: Response) => {

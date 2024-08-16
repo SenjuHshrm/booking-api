@@ -13,7 +13,7 @@ let applyProprietorship = async (res: Response, form: IStaycationInput): Promise
     let staycation: IStaycationSchema = await new Staycation({ ...form }).save()
     let user: IUserSchema = <IUserSchema>(await User.findById(form.host).exec())
     if(!user.status.includes('host')) {
-      await new ProprietorApplication({ userId: form.host, staycationId: staycation.id }).save()
+      await new ProprietorApplication({ userId: form.host }).save()
     }
     return res.status(201).json({ success: true })
   } catch(e: any) {

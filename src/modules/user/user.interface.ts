@@ -55,11 +55,11 @@ export interface IUserInput {
   fName: string;
   lName: string;
   email: string;
+  password: string;
 }
 
 export interface IProprietorApplicationSchema extends Document{
   userId: typeof Types.ObjectId;
-  staycationId: typeof Types.ObjectId;
 }
 
 export interface IWishlistSchema extends Document {

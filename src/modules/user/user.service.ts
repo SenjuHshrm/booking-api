@@ -23,19 +23,20 @@ let register = async (res: Response, u: IUserInput): Promise<Response<{ success:
       },
       status: 'active',
       identificationStat: 'pending',
+      approvedAsProprietorOn: ''
     })
     user.setImg('', u.email)
     user.save()
 
-    let newPassword = randomPassword()
+    // let newPassword = randomPassword()
     let auth: IAuthSchema = new Auth({
       userId: user.id,
       email: u.email,
       access: ['customer']
     })
-    auth.generateHash(newPassword)
+    auth.generateHash(u.password)
     auth.save()
-    sendPassword(u.email, newPassword)
+    // sendPassword(u.email, newPassword)
     PaymentService.addCustomer(user.id, u, '')
     return res.status(201).json({ success: true })
   } catch(e: any) {
@@ -58,11 +59,48 @@ let getUsersByAccess = async (res: Response, access: string, page: number, limit
   }
 }
 
-let getProprietorApplications = async (res: Response, page: number, limit: number): Promise<Response> => {
+let getProprietorApplications = async (res: Response, page: number, limit: number, approvedAsProprietorOn?: string): Promise<Response> => {
   try {
-    let total = await ProprietorApplication.countDocuments().exec()
-    let propApp: IProprietorApplicationSchema[] = <IProprietorApplicationSchema[]>(await ProprietorApplication.find({}).populate({ path: 'userId', select: 'name img' }).populate({ path: 'staycationId' }).skip(page).limit(limit).exec())
-    return res.status(200).json({ total, propApp })
+    let pipelineMatch = {}
+    if(approvedAsProprietorOn === 'true') {
+      pipelineMatch = { 'user.approvedAsProprietorOn': { $ne: '' } }
+    } else {
+      pipelineMatch = { 'user.approvedAsProprietorOn': '' }
+    }
+  
+    let propApp = await ProprietorApplication.aggregate([
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      {
+        $match: pipelineMatch
+      },
+      {
+        $project: {
+          "_id": 1,
+          "userId": 1,
+          "createdAt": 1,
+          "updatedAt": 1,
+          "user.name": 1,
+          "user.img": 1,
+          "user.approvedAsProprietorOn": 1,
+        }
+      },
+      {
+        $facet: {
+          paginatedResults: [{ $skip: page}, {$limit: limit }],
+          totalCount: [
+            {$count: 'count'}
+          ]
+        }
+      }
+    ]).exec()
+    return res.status(200).json(propApp)
   } catch(e: any){
     logger('user.controller', 'getProprietorApplications', e.message, 'USR-0003')
     return res.status(500).json({ code: 'USR-0003' })
@@ -72,9 +110,7 @@ let getProprietorApplications = async (res: Response, page: number, limit: numbe
 let setAsProprietor = async (res: Response, userId: string, staycationId: string, propAppId: string): Promise<Response<{ success: boolean }>> => {
   try {
     await Auth.findOneAndUpdate({ userId }, { $push: { access: 'host' } }).exec()
-    await Staycation.findOneAndUpdate({ _id: staycationId }, { $set: { isApproved: true } }).exec()
     await User.findByIdAndUpdate(userId, { $set: { approvedAsProprietorOn: moment(new Date()) } }).exec()
-    await ProprietorApplication.findByIdAndDelete(propAppId).exec()
     return res.status(200).json({ success: true })
   } catch(e: any) {
     logger('user.controller', 'setAsProprietor', e.message, 'USR-0004')

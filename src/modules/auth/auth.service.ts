@@ -83,7 +83,8 @@ let googleLogin = async (res: Response, authData: any, userData: any): Promise<R
         },
         img: userData.photoUrl,
         status: 'active',
-        identificationStat: 'pending'
+        identificationStat: 'pending',
+        approvedAsProprietorOn: ''
       }).save())
 
       let a: IAuthSchema = <IAuthSchema>(await new Auth({
@@ -98,7 +99,7 @@ let googleLogin = async (res: Response, authData: any, userData: any): Promise<R
         accessToken: token.access,
         refreshToken: token.refresh
       }).save()
-      PaymentService.addCustomer(u.id, { fName: userData.firstName, lName: userData.lastName, email: authData.email }, '')
+      PaymentService.addCustomer(u.id, { fName: userData.firstName, lName: userData.lastName, email: authData.email, password: '' }, '')
       return res.status(200).json({ token: token.access })
     } else {
       let u: IUserSchema = <IUserSchema>(await User.findById(test.userId).exec())
