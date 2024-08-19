@@ -38,6 +38,7 @@ let register = async (res: Response, u: IUserInput): Promise<Response<{ success:
     auth.save()
     // sendPassword(u.email, newPassword)
     PaymentService.addCustomer(user.id, u, '')
+    new Wishlist({ user: user.id, staycation: [] }).save()
     return res.status(201).json({ success: true })
   } catch(e: any) {
     logger('user.controller', 'register', e.message, 'USR-0001')
@@ -62,10 +63,14 @@ let getUsersByAccess = async (res: Response, access: string, page: number, limit
 let getProprietorApplications = async (res: Response, page: number, limit: number, approvedAsProprietorOn?: string): Promise<Response> => {
   try {
     let pipelineMatch = {}
-    if(approvedAsProprietorOn === 'true') {
-      pipelineMatch = { 'user.approvedAsProprietorOn': { $ne: '' } }
+    if(approvedAsProprietorOn === undefined) {
+      pipelineMatch = { $or: [{ 'user.approvedAsProprietorOn': { $ne: '' } }, { 'user.approvedAsProprietorOn': '' }] }
     } else {
-      pipelineMatch = { 'user.approvedAsProprietorOn': '' }
+      if(approvedAsProprietorOn === 'true') {
+        pipelineMatch = { 'user.approvedAsProprietorOn': { $ne: '' } }
+      } else {
+        pipelineMatch = { 'user.approvedAsProprietorOn': '' }
+      }
     }
   
     let propApp = await ProprietorApplication.aggregate([
@@ -110,7 +115,7 @@ let getProprietorApplications = async (res: Response, page: number, limit: numbe
 let setAsProprietor = async (res: Response, userId: string, staycationId: string, propAppId: string): Promise<Response<{ success: boolean }>> => {
   try {
     await Auth.findOneAndUpdate({ userId }, { $push: { access: 'host' } }).exec()
-    await User.findByIdAndUpdate(userId, { $set: { approvedAsProprietorOn: moment(new Date()) } }).exec()
+    await User.findByIdAndUpdate(userId, { $set: { approvedAsProprietorOn: new Date().toISOString() } }).exec()
     return res.status(200).json({ success: true })
   } catch(e: any) {
     logger('user.controller', 'setAsProprietor', e.message, 'USR-0004')
@@ -198,6 +203,37 @@ let getUserProfileImg = async (res: Response, id: string): Promise<any> => {
   }
 }
 
+let addToWishList = async (res: Response, user: string, staycation: string): Promise<Response> => {
+  try {
+    await Wishlist.findOneAndUpdate({ user }, { $push: { staycation } })
+    return res.status(201).json({ success: true })
+  } catch(e: any) {
+    logger('user.controller', 'addToWishList', e.message, 'USR-0010')
+    return res.status(500).json({ code: 'USR-0010' })
+  }
+}
+
+let removeToWishlist = async (res: Response, user: string, staycation: string): Promise<Response> => {
+  try {
+    await Wishlist.findOneAndUpdate({ user }, { $pull: { staycation } }).exec()
+    return res.status(200).json({ success: true })
+  } catch(e: any) {
+    logger('user.controller', 'removeToWishlist', e.message, 'USR-0011')
+    return res.status(500).json({ code: 'USR-0011' })
+  }
+}
+
+let checkWishList = async (res: Response, user: string, staycation: string): Promise<Response> => {
+  try {
+    let wl: IWishlistSchema = <IWishlistSchema>(await Wishlist.findOne({ user, staycation }).exec())
+    if(!wl) return res.status(404).json({ code: 'not-found' })
+    return res.status(200).json({ success: true })
+  } catch(e: any) {
+    logger('user.controller', 'checkWishlist', e.message, 'USR-0012')
+    return res.status(500).json({ code: 'USR-0012' })
+  }
+}
+
 const UserService = {
   register,
   getUsersByAccess,
@@ -207,7 +243,10 @@ const UserService = {
   getUserProfile,
   updateUserProfile,
   getWishlistByUser,
-  getUserProfileImg
+  getUserProfileImg,
+  addToWishList,
+  removeToWishlist,
+  checkWishList
 }
 
 export default UserService

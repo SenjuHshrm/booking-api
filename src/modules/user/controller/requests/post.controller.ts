@@ -19,4 +19,8 @@ const postUserRoutes: Router = Router()
     return UserService.addAdmin(res, user)
   })
 
+  .post('/add-to-wishlist', passport.authenticate('jwt', { session: false }), (req: Request, res: Response) => {
+    return UserService.addToWishList(res, req.body.user, req.body.staycation)
+  })
+
 export default postUserRoutes

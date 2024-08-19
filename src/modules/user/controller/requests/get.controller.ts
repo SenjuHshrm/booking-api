@@ -28,4 +28,8 @@ const getUserRoutes: Router = Router()
     return UserService.getUserProfileImg(res, req.params.id)
   })
 
+  .get('/check-in-wishlist/:user/:staycation', passport.authenticate('jwt', { session: false }), (req: Request, res: Response) => {
+    return UserService.checkWishList(res, req.params.user, req.params.staycation)
+  })
+
 export default getUserRoutes

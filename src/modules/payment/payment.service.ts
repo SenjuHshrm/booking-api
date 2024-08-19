@@ -82,10 +82,19 @@ let getMerchantPaymentMethods = async (res: Response): Promise<Response> => {
   }
 }
 
+let createPaymentIntent = async (res: Response, data: any) => {
+  try {
+    console.log(data)
+  } catch(e: any) {
+    logger('payment.controller', 'createPaymentIntent', e.message, 'PYMT-0004')
+  }
+}
+
 const PaymentService = {
   addCustomer,
   getCustomerPaymentMethod,
-  getMerchantPaymentMethods
+  getMerchantPaymentMethods,
+  createPaymentIntent
 }
 
 export default PaymentService

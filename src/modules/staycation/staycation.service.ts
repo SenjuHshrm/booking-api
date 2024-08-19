@@ -71,8 +71,8 @@ let removeStaycation = async (res: Response, id: string): Promise<Response<null>
 
 let getHostListing = async (res: Response, userId: string, page: number, limit: number): Promise<Response> => {
   try {
-    let total = await Staycation.countDocuments({ host: userId, isApproved: true }).exec()
-    let listings: IStaycationSchema[] = <IStaycationSchema[]>(await Staycation.find({ host: userId, isApproved: true }).skip(page).limit(limit).exec())
+    let total = await Staycation.countDocuments({ host: userId }).exec()
+    let listings: IStaycationSchema[] = <IStaycationSchema[]>(await Staycation.find({ host: userId }).skip(page).limit(limit).exec())
     return res.status(200).json({ total, listings })
   } catch(e: any) {
     logger('staycation.controller', 'getHostListing', e.message, 'STC-0006')
@@ -82,7 +82,7 @@ let getHostListing = async (res: Response, userId: string, page: number, limit: 
 
 let getDetails = async (res: Response, _id: string): Promise<Response<IStaycation>> => {
   try {
-    let detail: IStaycationSchema = <IStaycationSchema>(await Staycation.findById(_id).populate({ path: 'host', select: 'name img' }).exec())
+    let detail: IStaycationSchema = <IStaycationSchema>(await Staycation.findById(_id).populate({ path: 'host', select: 'name img approvedAsProprietorOn' }).exec())
     return res.status(200).json(detail)
   } catch(e: any) {
     logger('staycation.controller', 'getDetails', e.message, 'STC-0007')
@@ -112,6 +112,16 @@ let getRecentSearches = async (res: Response, user: string): Promise<Response> =
   }
 }
 
+let updateStaycationFromAdmin = async (res: Response, id: string, form: any): Promise<Response<null>> => {
+  try {
+    Staycation.findByIdAndUpdate(id, { $set: { ...form } }).exec()
+    return res.status(200).json({ success: true })
+  } catch(e: any) {
+    logger('staycation.controller', 'updateStaycation', e.message, 'STC-0010')
+    return res.status(500).json({ code: 'STC-0010' })
+  }
+}
+
 
 const StaycationService = {
   applyProprietorship,
@@ -122,7 +132,8 @@ const StaycationService = {
   getHostListing,
   getDetails,
   getGallery,
-  getRecentSearches
+  getRecentSearches,
+  updateStaycationFromAdmin
 }
 
 export default StaycationService

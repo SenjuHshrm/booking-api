@@ -8,7 +8,7 @@ import { createServer } from 'http';
 import { RedisClientType, RedisModules, RedisFunctions, RedisScripts } from 'redis';
 import { instrument } from '@socket.io/admin-ui';
 
-import { dbConfig, env, port, redisClient } from './config'
+import { dbConfig, env, port, redisClient, webhook } from './config'
 import { header } from './middleware'
 import { IO } from './socket/io'
 import { Routes } from './routes';
@@ -65,5 +65,8 @@ httpServer.listen(app.get('port'), () => {
       password: env.SIO_ADMIN_PASSWORD
     }
   })
+  if(!env.HOST.includes('http://localhost')) {
+    webhook()
+  }
   console.log(`App running on PORT ${app.get('port')}`)
 })
