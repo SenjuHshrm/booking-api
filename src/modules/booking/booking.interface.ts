@@ -4,10 +4,10 @@ export interface IBookingSchema extends Document {
   initiatedBy: typeof Types.ObjectId; // user
   bookTo: typeof Types.ObjectId; // staycation
   arrivalDate: string;
-  paymentType: string;
-  payment: IBookingPayment[];
-  isPaid: boolean;
+  transactionId: typeof Types.ObjectId; //transaction
   isCancelled: boolean;
+  cancellationPolicy: string;
+  isApproved: boolean
 }
 
 export interface IBooking {
@@ -16,7 +16,6 @@ export interface IBooking {
   arrivalDate: string;
   paymentType: string;
   payment: number;
-  isPaid: boolean;
   isCancelled: boolean;
 }
 
@@ -26,8 +25,9 @@ export interface IBookingInput {
   arrivalDate: string;
   paymentType: string;
   payment: number;
-  isPaid: boolean;
   isCancelled: boolean;
+  cancellationPolicy: string;
+  isApproved: boolean
 }
 
 export interface IBookingPayment {

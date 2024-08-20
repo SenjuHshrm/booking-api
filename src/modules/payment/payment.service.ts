@@ -1,10 +1,15 @@
-import { IUserInput } from './../user/user.interface';
+import { IAuthSchema } from './../auth/auth.interface';
+import { IUserInput, IUserSchema } from './../user/user.interface';
 import User from './../user/schema/User.schema'
 import { Response } from "express"
 import Payment from './schema/Payment.schema'
 import { IPaymentSchema, IPaymentInput, IPayment } from "./payment.interface"
 import { logger, decrypt } from './../../utils'
 import { env } from './../../config'
+import Transaction from './schema/Transaction.schema';
+import { ITransactionSchema } from './payment.interface';
+import moment from 'moment';
+import Booking from './../booking/schema/Booking.schema';
 
 const authBasic: string = `Basic ${Buffer.from(env.PAYMONGO_SK + ':').toString('base64')}`
 const baseURL: string = `${env.PAYMONGO_URL}/${env.PAYMONGO_URL_VER}`
@@ -82,11 +87,96 @@ let getMerchantPaymentMethods = async (res: Response): Promise<Response> => {
   }
 }
 
-let createPaymentIntent = async (res: Response, data: any) => {
+let createPaymentIntent = async (res: Response, data: any, a: Express.User) => {
   try {
     console.log(data)
+    let auth: IAuthSchema = <IAuthSchema>a;
+    let user: IUserSchema = <IUserSchema>(await User.findById(auth.userId).exec())
+    let opt = {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'content-type': 'application/json',
+        authorization: authBasic
+      },
+      body: JSON.stringify({
+        data: {
+          attributes: {
+            amount: data.amount * 100,
+            payment_method_allowed: [data.paymentType],
+            payment_method_options: (data.selectedPaymentType === 'card') ? {
+              card: {
+                request_three_d_secure: 'any'
+              }
+            } : null,
+            currency: 'PHP',
+            capture_type: 'automatic',
+            // setup_future_usage: { session_type: 'on_session', customer_id: user.paymentClientId },
+            description: `Booking ${data.staycationId}`,
+            statement_descriptor: `Request booking of user ${user.id} for staycation ${data.staycationId}`
+          }
+        }
+      })
+    }
+    let reqt = await fetch(`${baseURL}/payment_intents`, opt)
+    let resp = await reqt.json()
+    new Transaction({
+      userId: user.id,
+      staycationId: data.staycationId,
+      piId: resp.data.id,
+      amount: data.amount,
+      paymentType: data.paymentOption,
+      remainingBal: data.remainingBal,
+      remainingBalDue: (data.remainingBalDue !== '') ? moment(data.remainingBalDue, "MMMM DD, YYYY").format('MM/DD/YYYY') : '',
+      clientKey: resp.data.attributes.client_key,
+      status: resp.data.attributes.status,
+      checkoutURL: ''
+    }).save()
+    return res.status(201).json(resp)
   } catch(e: any) {
     logger('payment.controller', 'createPaymentIntent', e.message, 'PYMT-0004')
+    return res.status(500).json({ code: 'PYMT-0004' })
+  }
+}
+
+let attachToPaymentIntent = async (res: Response, data: any, piId: string) => {
+  try {
+    let trn: ITransactionSchema = <ITransactionSchema>(await Transaction.findOne({ piId }).exec())
+    let opt = {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'content-type': 'application/json',
+        authorization: authBasic
+      },
+      body: JSON.stringify({
+        data: {
+          attributes: {
+            payment_method: data.id,
+            client_key: trn.clientKey,
+            return_url: `${env.HOST}`
+          }
+        }
+      })
+    }
+    let reqt = await fetch(`${baseURL}/payment_intents/${piId}/attach`, opt)
+    let resp = await reqt.json()
+    trn.checkoutURL = resp.data.attributes.next_action.redirect.url
+    trn.status = resp.data.attributes.status
+    trn.save()
+    new Booking({
+      initiatedBy: trn.userId,
+      bookTo: trn.staycationId,
+      arrivalDate: data.checkInDate,
+      transactionId: trn.id,
+      isCancelled: false,
+      cancellationPolicy: data.cancellationPolicy,
+      isApproved: (data.bookingProcess === 'for_approval') ? false : true
+    }).save()
+    return res.status(200).json(resp)
+  } catch(e: any) {
+    logger('payment.controller', 'attachToPaymentIntent', e.message, 'PYMT-0005')
+    return res.status(500).json({ code: 'PYMT-0005' })
   }
 }
 
@@ -94,7 +184,8 @@ const PaymentService = {
   addCustomer,
   getCustomerPaymentMethod,
   getMerchantPaymentMethods,
-  createPaymentIntent
+  createPaymentIntent,
+  attachToPaymentIntent
 }
 
 export default PaymentService
