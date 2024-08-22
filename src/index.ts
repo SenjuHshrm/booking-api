@@ -4,13 +4,14 @@ import cors from 'cors'
 import { join, resolve } from 'path'
 import passport from 'passport';
 import { Server } from 'socket.io'
+import { createShardedAdapter, createAdapter } from '@socket.io/redis-adapter'
 import { createServer } from 'http';
 import { RedisClientType, RedisModules, RedisFunctions, RedisScripts } from 'redis';
 import { instrument } from '@socket.io/admin-ui';
 
 import { dbConfig, env, port, redisClient, webhook } from './config'
 import { header } from './middleware'
-import { IO } from './socket/io'
+import IO from './socket/io'
 import { Routes } from './routes';
 
 declare global {
@@ -27,6 +28,10 @@ const io: Server = new Server(httpServer, {
   }
 })
 const pubClient: RedisClientType<RedisModules, RedisFunctions, RedisScripts> = <RedisClientType<RedisModules, RedisFunctions, RedisScripts>>(redisClient)
+const subClient: RedisClientType<RedisModules, RedisFunctions, RedisScripts> = <RedisClientType<RedisModules, RedisFunctions, RedisScripts>>pubClient.duplicate()
+Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
+  io.adapter(createAdapter(pubClient, subClient))
+})
 IO(io)
 
 globalThis.appRoot = <string>resolve(__dirname)
@@ -55,7 +60,7 @@ app.get('/*', (req: Request, res: Response) => {
 
 httpServer.listen(app.get('port'), () => {
   dbConfig()
-  pubClient.connect()
+  // pubClient.connect()
   redisClient.flushAll()
   // task(io)
   instrument(io, {
@@ -65,8 +70,8 @@ httpServer.listen(app.get('port'), () => {
       password: env.SIO_ADMIN_PASSWORD
     }
   })
-  if(!env.HOST.includes('http://localhost')) {
-    webhook()
-  }
+  // if(!env.HOST.includes('http://localhost')) {
+  //   webhook()
+  // }
   console.log(`App running on PORT ${app.get('port')}`)
 })
