@@ -6,8 +6,8 @@ export interface IUserSchema extends Document {
   desc?: IUserDescription;
   address: string;
   contact: string;
-  status: 'active' | 'suspended' | 'terminated';
-  identificationStat: 'pending' | 'approved' | 'disapproved';
+  status: "active" | "suspended" | "terminated";
+  identificationStat: "pending" | "approved" | "disapproved";
   suspendedUntil: string;
   approvedAsProprietorOn: string;
   paymentClientId: string;
@@ -22,11 +22,21 @@ export interface IUserDescription {
   favPlace?: string;
 }
 
+export interface IUserAddress {
+  unit?: string;
+  street: string;
+  brgy: string;
+  city: string;
+  province: string;
+  country: string;
+  zip: string;
+}
+
 export interface IUserFullName {
   fName: string;
   mName?: string;
   lName: string;
-  xName?: string
+  xName?: string;
 }
 
 export interface IUser {
@@ -36,8 +46,8 @@ export interface IUser {
   desc: IUserDescription;
   address?: string;
   contact: string;
-  status: 'active' | 'suspended' | 'terminated';
-  identificationStat: 'pending' | 'approved' | 'disapproved';
+  status: "active" | "suspended" | "terminated";
+  identificationStat: "pending" | "approved" | "disapproved";
   suspendedUntil: string;
   approvedAsProprietorOn: string;
   paymentClientId: string;
@@ -58,11 +68,11 @@ export interface IUserInput {
   password: string;
 }
 
-export interface IProprietorApplicationSchema extends Document{
+export interface IProprietorApplicationSchema extends Document {
   userId: typeof Types.ObjectId;
 }
 
 export interface IWishlistSchema extends Document {
   user: typeof Types.ObjectId;
-  staycation: typeof Types.ObjectId[]
+  staycation: (typeof Types.ObjectId)[];
 }
