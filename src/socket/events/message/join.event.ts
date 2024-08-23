@@ -1,9 +1,13 @@
-import { Server, Socket } from 'socket.io'
-import { redisClient } from './../../../config'
+import { Socket } from 'socket.io'
+import MessageService from './../../../modules/message/message.service'
 
 const join = (socket: Socket) => {
-  let mainJoin = (id: string) => {
-    // redisClient.rPush(id, socket.id)
+  let mainJoin = async (id: string) => {
+    let roomIds: string[] = await MessageService.getMsgRoom(id)
+    socket.data.userId = id
+    if(roomIds.length > 0) {
+      socket.join(roomIds)
+    }
   }
 
   socket.on('msg:join', mainJoin)

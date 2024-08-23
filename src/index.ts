@@ -25,7 +25,8 @@ const io: Server = new Server(httpServer, {
   cors: {
     origin: env.ORIGIN,
     credentials: true
-  }
+  },
+  maxHttpBufferSize: 1e8
 })
 const pubClient: RedisClientType<RedisModules, RedisFunctions, RedisScripts> = <RedisClientType<RedisModules, RedisFunctions, RedisScripts>>(redisClient)
 const subClient: RedisClientType<RedisModules, RedisFunctions, RedisScripts> = <RedisClientType<RedisModules, RedisFunctions, RedisScripts>>pubClient.duplicate()
