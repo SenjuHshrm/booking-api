@@ -5,6 +5,7 @@ import { staycationRoutes } from './modules/staycation/controller/staycation.con
 import { paymentRoutes } from "./modules/payment/controller/payment.controller";
 import { userRoutes } from './modules/user/controller/user.controller'
 import { messageRoutes } from './modules/message/controller/message.controller';
+import faqsRoutes from "./modules/faqs/controller/faqs.controller";
 
 export const Routes: Router = Router()
   .use('/auth', authRoutes)
@@ -13,3 +14,4 @@ export const Routes: Router = Router()
   .use('/payment', paymentRoutes)
   .use('/user', userRoutes)
   .use('/message', messageRoutes)
+  .use('/faqs', faqsRoutes)
