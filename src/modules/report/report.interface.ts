@@ -1,18 +1,20 @@
-import { Document, Types } from 'mongoose'
-import { IUserFullName } from '../user/user.interface';
+import { IUserPrev } from './../user/user.interface';
+import { Document, Types, PopulatedDoc } from 'mongoose'
 
 export interface IReportSchema extends Document {
-  reporter: typeof Types.ObjectId;
-  reported: typeof Types.ObjectId;
+  reporter: typeof Types.ObjectId | PopulatedDoc<IUserPrev>;
+  reported: typeof Types.ObjectId | PopulatedDoc<IUserPrev>;
   msg: string;
-  resolved: boolean;
+  action: 'no-action' | 'warning' | 'suspend' | 'terminate';
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface IReport {
-  reporter: IUserFullName;
-  reported: IUserFullName;
+  reporter: IUserPrev;
+  reported: IUserPrev;
   msg: string;
-  resolved: boolean;
+  action: 'no-action' | 'warning' | 'suspend' | 'terminate';
   createdAt: string;
   updatedAt: string;
 }
