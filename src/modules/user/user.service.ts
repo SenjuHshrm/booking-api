@@ -9,7 +9,8 @@ import {
   IProprietorApplicationSchema,
   IUser,
   IWishlistSchema,
-  IUserVerificationInput
+  IUserVerificationInput,
+  IUserVerificationSchema
 } from "./user.interface";
 import { IAuthSchema } from "../auth/auth.interface";
 import User from "./schema/User.schema";
@@ -427,8 +428,18 @@ let getUserIDVerification = async (res: Response, page: number, limit: number, n
     let users = await UserVerification.aggregate(aggregate).exec()
     return res.status(200).json(users)
   } catch(e: any) {
-    logger('user.controller', 'setUserVerification', e.message, 'USR-0010')
+    logger('user.controller', 'getUserIDVerification', e.message, 'USR-0010')
     return res.status(500).json({ code: 'USR-0010' })
+  }
+}
+
+let getUserVerificationStatus = async (res: Response, user: string): Promise<Response> => {
+  try {
+    let userStat: IUserVerificationSchema = <IUserVerificationSchema>(await UserVerification.findOne({ user }).exec())
+    return res.status(200).json({ status: userStat.status })
+  } catch(e: any) {
+    logger('user.controller', 'getUserVerificationStatus', e.message, 'USR-0011')
+    return res.status(500).json({ code: 'USR-0011' })
   }
 }
 
@@ -448,7 +459,8 @@ const UserService = {
   verificationUpdateProfile,
   uploadVerification,
   setUserVerificationStatus,
-  getUserIDVerification
+  getUserIDVerification,
+  getUserVerificationStatus
 };
 
 export default UserService;

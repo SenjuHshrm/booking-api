@@ -38,4 +38,8 @@ const getUserRoutes: Router = Router()
     return UserService.getUserIDVerification(res, page, limit, <string>req.query.name)
   })
 
+  .get('/user-verification-status/:id', passport.authenticate('jwt', { session: false }), (req: Request, res: Response) => {
+    return UserService.getUserVerificationStatus(res, req.params.id)
+  })
+
 export default getUserRoutes
