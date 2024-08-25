@@ -1,12 +1,14 @@
 import { Server, Socket } from 'socket.io'
-import Main from './namespaces/main.io'
-import Notification from './namespaces/notification.io'
-import Message from './namespaces/message.io'
+import MainEvent from './events/main'
+import MessageEvent from './events/message'
+import NotificationEvent from './events/notification'
 
 const IO = (io: Server) => {
-  Main(io)
-  Notification(io)
-  Message(io)
+
+  MainEvent(io)
+  MessageEvent(io)
+  NotificationEvent(io)
+  
 }
 
 export default IO
