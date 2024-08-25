@@ -380,6 +380,58 @@ let uploadVerification = async (res: Response, data: IUserVerificationInput): Pr
   }
 }
 
+let setUserVerificationStatus = async (res: Response, id: string, status: string): Promise<Response> => {
+  try {
+    await UserVerification.findByIdAndUpdate(id, { $set: { status } }).exec()
+    return res.status(200).json({ success: true })
+  } catch(e: any) {
+    logger('user.controller', 'setUserVerification', e.message, 'USR-0009')
+    return res.status(500).json({ code: 'USR-0009' })
+  }
+}
+
+let getUserIDVerification = async (res: Response, page: number, limit: number, name?: string): Promise<Response> => {
+  try {
+    let aggregate: any = [
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user'
+        }
+      }
+    ]
+    if(name !== undefined) {
+      aggregate.push({
+        $match: { 'user.name.fName': { $regex: new RegExp(`${name}`), $options: 'imu' } }
+      })
+    }
+    aggregate.push({
+      $project: {
+        _id: 1,
+        user: 1,
+        createdAt: 1,
+        updatedAt: 1,
+        'user.name.fName': 1,
+        'user.name.lName': 1,
+        'user.img': 1,
+        status: 1
+      }
+    }, {
+      $facet: {
+        paginatedResults: [{ $skip: page }, { $limit: limit }],
+        totalCount: [{ $count: 'count' }]
+      }
+    })
+    let users = await UserVerification.aggregate(aggregate).exec()
+    return res.status(200).json(users)
+  } catch(e: any) {
+    logger('user.controller', 'setUserVerification', e.message, 'USR-0010')
+    return res.status(500).json({ code: 'USR-0010' })
+  }
+}
+
 const UserService = {
   register,
   getUsersByAccess,
@@ -394,7 +446,9 @@ const UserService = {
   removeToWishlist,
   checkWishList,
   verificationUpdateProfile,
-  uploadVerification
+  uploadVerification,
+  setUserVerificationStatus,
+  getUserIDVerification
 };
 
 export default UserService;

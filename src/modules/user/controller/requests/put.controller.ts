@@ -42,6 +42,10 @@ const putUserRoutes: Router = Router()
 
   .put("/verification/update-profile/:id", (req: Request, res: Response) => {
     return UserService.verificationUpdateProfile(res, req.body, req.params.id);
-  });
+  })
+
+  .put('/update-user-verification/:id', (req: Request, res: Response) => {
+    return UserService.setUserVerificationStatus(res, req.params.id, req.body.status)
+  })
 
 export default putUserRoutes;

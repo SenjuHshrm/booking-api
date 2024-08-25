@@ -32,4 +32,10 @@ const getUserRoutes: Router = Router()
     return UserService.checkWishList(res, req.params.user, req.params.staycation)
   })
 
+  .get('/user-identification/:page/:limit', passport.authenticate('jwt', { session: false }), (req: Request, res: Response) => {
+    let limit: number = parseInt(req.params.limit)
+    let page: number = (parseInt(req.params.page) - 1) * limit
+    return UserService.getUserIDVerification(res, page, limit, <string>req.query.name)
+  })
+
 export default getUserRoutes
