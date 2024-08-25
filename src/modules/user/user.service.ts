@@ -9,6 +9,7 @@ import {
   IProprietorApplicationSchema,
   IUser,
   IWishlistSchema,
+  IUserVerificationInput
 } from "./user.interface";
 import { IAuthSchema } from "../auth/auth.interface";
 import User from "./schema/User.schema";
@@ -20,6 +21,7 @@ import Wishlist from "./schema/Wishlist.schema";
 import { join } from "path";
 import moment from "moment";
 import PaymentService from "./../payment/payment.service";
+import UserVerification from "./schema/UserVerification.schema";
 
 let register = async (
   res: Response,
@@ -368,6 +370,16 @@ let verificationUpdateProfile = async (
   }
 };
 
+let uploadVerification = async (res: Response, data: IUserVerificationInput): Promise<Response> => {
+  try {
+    new UserVerification({ ...data }).save()
+    return res.status(201).json({ success: true })
+  } catch(e: any) {
+    logger('user.controller', 'uploadVerification', e.message, 'USR-0008')
+    return res.status(500).json({ code: 'USR-0008' })
+  }
+}
+
 const UserService = {
   register,
   getUsersByAccess,
@@ -382,6 +394,7 @@ const UserService = {
   removeToWishlist,
   checkWishList,
   verificationUpdateProfile,
+  uploadVerification
 };
 
 export default UserService;

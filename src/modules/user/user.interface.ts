@@ -1,4 +1,4 @@
-import { Document, Types } from "mongoose";
+import { Document, PopulatedDoc, Types } from "mongoose";
 
 export interface IUserSchema extends Document {
   name: IUserFullName;
@@ -75,4 +75,30 @@ export interface IProprietorApplicationSchema extends Document {
 export interface IWishlistSchema extends Document {
   user: typeof Types.ObjectId;
   staycation: (typeof Types.ObjectId)[];
+}
+
+export interface IUserVerificationSchema extends Document {
+  user: typeof Types.ObjectId | PopulatedDoc<IUserPrev>;
+  type: string;
+  idFront: string;
+  idBack: string;
+  status: 'pending' | 'approved' | 'declined';
+  reason?: string;
+}
+
+export interface IUserVerification {
+  user: IUserPrev;
+  type: string;
+  idFront: string;
+  idBack: string;
+  status:  'pending' | 'approved' | 'declined';
+  reason?: string;
+}
+
+export interface IUserVerificationInput {
+  user: string;
+  type: string;
+  idFront: string;
+  idBack: string;
+  status: 'pending' | 'approved' | 'declined';
 }
