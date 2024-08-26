@@ -414,8 +414,7 @@ let getUserIDVerification = async (res: Response, page: number, limit: number, n
         user: 1,
         createdAt: 1,
         updatedAt: 1,
-        'user.name.fName': 1,
-        'user.name.lName': 1,
+        'user.name': 1,
         'user.img': 1,
         status: 1
       }
