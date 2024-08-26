@@ -403,23 +403,32 @@ let getUserIDVerification = async (res: Response, page: number, limit: number, n
         }
       }
     ]
-    if(name !== undefined || name !== '') {
+    if(name === undefined) {
       aggregate.push({
-        $match: { 'userInfo.name.fName': { $regex: new RegExp(`${name}`), $options: 'imu' } }
+        $match: {
+          $or: [
+            { 'userInfo.name.fName': { $ne: '' } },
+            { 'userInfo.name.fName': '' }
+          ]
+        }
       })
+      
     } else {
       aggregate.push({
-        $match: { 'userInfo.name.fName': { $ne: '' }}
+        $match: { 'userInfo.name.fName': { $regex: new RegExp(`${name}`), $options: 'imu' } }
       })
     }
     aggregate.push({
       $project: {
         _id: 1,
-        userInfo: 1,
+        user: 1,
+        idFront: 1,
+        idBack: 1,
         createdAt: 1,
         updatedAt: 1,
-        // 'user.name': 1,
-        // 'user.img': 1,
+        'userInfo._id': 1,
+        'userInfo.name': 1,
+        'userInfo.img': 1,
         status: 1
       }
     }, {
