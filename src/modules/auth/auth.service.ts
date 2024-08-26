@@ -9,6 +9,7 @@ import { logger } from './../../utils';
 import User from "./../user/schema/User.schema";
 import { IUserSchema } from './../user/user.interface'
 import PaymentService from './../payment/payment.service'
+import moment from 'moment'
 
 let generateToken = async (res: Response, a: Express.User): Promise<Response<{ token: string }>> => {
   try {
@@ -117,12 +118,42 @@ let googleLogin = async (res: Response, authData: any, userData: any): Promise<R
   }
 }
 
+let checkStatus = async (auth: Express.User, currentDate: string): Promise<{ res: boolean, msg: string } | null> => {
+  try {
+    let a: IAuthSchema = <IAuthSchema>auth
+    let resp: { res: boolean, msg: string } = { res: false, msg: '' };
+    let user: IUserSchema = <IUserSchema>(await User.findById(a.userId).exec())
+    switch(user.status) {
+      case 'active':
+        resp = { res: true, msg: '' };
+        break;
+      case 'suspended':
+        let date = moment(currentDate, 'MM/DD/YYYY')
+        let suspensionDue = moment(user.suspendedUntil)
+        if(suspensionDue.diff(date, 'days') > 0) resp = { res: false, msg: `Your account is suspended until ${moment(user.suspendedUntil).format('MMMM DD, YYYY')}` }
+        user.status = 'active'
+        user.suspendedUntil = ''
+        user.save()
+        resp = { res: true, msg: '' }
+        break;
+      case 'terminated':
+        resp = { res: false, msg: 'Your account is terminated.' }
+        break;
+    }
+    return resp;
+  } catch(e: any) {
+    logger('auth.controller', 'checkStatus', e.message, 'AUTH-0006')
+    return null;
+  }
+}
+
 const AuthService = {
   generateToken,
   logout,
   requestToken,
   updatePassword,
-  googleLogin
+  googleLogin,
+  checkStatus
 }
 
 export default AuthService
