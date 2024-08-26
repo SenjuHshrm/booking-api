@@ -399,23 +399,27 @@ let getUserIDVerification = async (res: Response, page: number, limit: number, n
           from: 'users',
           localField: 'user',
           foreignField: '_id',
-          as: 'user'
+          as: 'userInfo'
         }
       }
     ]
-    if(name !== undefined) {
+    if(name !== undefined || name !== '') {
       aggregate.push({
-        $match: { 'user.name.fName': { $regex: new RegExp(`${name}`), $options: 'imu' } }
+        $match: { 'userInfo.name.fName': { $regex: new RegExp(`${name}`), $options: 'imu' } }
+      })
+    } else {
+      aggregate.push({
+        $match: { 'userInfo.name.fName': { $ne: '' }}
       })
     }
     aggregate.push({
       $project: {
         _id: 1,
-        user: 1,
+        userInfo: 1,
         createdAt: 1,
         updatedAt: 1,
-        'user.name': 1,
-        'user.img': 1,
+        // 'user.name': 1,
+        // 'user.img': 1,
         status: 1
       }
     }, {
