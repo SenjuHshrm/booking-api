@@ -436,6 +436,7 @@ let getUserIDVerification = async (res: Response, page: number, limit: number, n
 let getUserVerificationStatus = async (res: Response, user: string): Promise<Response> => {
   try {
     let userStat: IUserVerificationSchema = <IUserVerificationSchema>(await UserVerification.findOne({ user }).exec())
+    if(!userStat) return res.status(404).json({ msg: 'User verification not found' })
     return res.status(200).json({ status: userStat.status })
   } catch(e: any) {
     logger('user.controller', 'getUserVerificationStatus', e.message, 'USR-0011')
