@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, Router } from 'express'
-import { uploadCarouselFrontImg, uploadCarouselLocImg } from 'middleware'
+import { uploadCarouselFrontImg, uploadCarouselLocImg } from './../../../../middleware'
 import ImgCarouselService from './../../../img-carousel/img-carousel.service'
 
 let mw = (req: Request, res: Response, next: NextFunction) => {

@@ -10,7 +10,7 @@ export interface IImageCarouselFrontSchema extends Document {
 export interface IImageCarouselLocSchema extends Document {
   img: string;
   desc: string;
-  isActive: string;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -27,7 +27,7 @@ export interface IImageCarouselLoc {
   _id: string;
   img: string;
   desc: string;
-  isActive: string;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }

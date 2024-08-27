@@ -8,6 +8,6 @@ let imgCarFr: Schema<IImageCarouselFrontSchema> = new Schema<IImageCarouselFront
   timestamps: true
 })
 
-const ImageCarouselFront = model('img-carousel-loc', imgCarFr)
+const ImageCarouselFront = model('img-carousel-front', imgCarFr)
 
 export default ImageCarouselFront;

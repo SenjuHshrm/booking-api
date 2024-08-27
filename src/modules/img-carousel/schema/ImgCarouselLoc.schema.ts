@@ -9,6 +9,6 @@ let imgCarLoc: Schema<IImageCarouselLocSchema> = new Schema<IImageCarouselLocSch
   timestamps: true
 })
 
-const ImageCarouselLocation = model('img-carousel-loc', imgCarLoc)
+const ImageCarouselLocation = model('img-carousel-location', imgCarLoc)
 
 export default ImageCarouselLocation;

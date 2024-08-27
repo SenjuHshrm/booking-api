@@ -1,4 +1,4 @@
-import { uploadCarouselFrontImg, uploadCarouselLocImg } from './../../../../middleware/img-carousel.middleware';
+import { uploadCarouselFrontImg, uploadCarouselLocImg } from './../../../../middleware';
 import { Request, Response, Router, NextFunction } from 'express'
 import ImgCarouselService from './../../../img-carousel/img-carousel.service'
 
