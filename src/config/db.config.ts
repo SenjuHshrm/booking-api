@@ -24,7 +24,7 @@ export const dbConfig = () => {
           xName: env.ADMIN_EXTNAME
         },
         img: env.ADMIN_IMG,
-        address: env.ADMIN_ADDRESS,
+        // address: env.ADMIN_ADDRESS,
         status: 'active',
         identificationStat: 'approved'
       })
