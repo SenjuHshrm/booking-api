@@ -22,7 +22,7 @@ let getReportList = async (res: Response, page: number, limit: number, name?: st
         $lookup: {
           from: 'users',
           localField: 'reporter',
-          foreginField: '_id',
+          foreignField: '_id',
           as: 'reporterInfo'
         }
       },
@@ -30,7 +30,7 @@ let getReportList = async (res: Response, page: number, limit: number, name?: st
         $lookup: {
           from: 'users',
           localField: 'reported',
-          foreginField: '_id',
+          foreignField: '_id',
           as: 'reportedInfo'
         }
       }
