@@ -1,3 +1,4 @@
+import { IImageCarouselFrontInput, IImageCarouselLocInput } from './../../img-carouse.interface';
 import { uploadCarouselFrontImg, uploadCarouselLocImg } from './../../../../middleware';
 import { Request, Response, Router, NextFunction } from 'express'
 import ImgCarouselService from './../../../img-carousel/img-carousel.service'
@@ -13,10 +14,20 @@ let mw = (req: Request, res: Response, next: NextFunction) => {
 
 const postImgCarouselRoutes: Router = Router()
   .post('/add/:type', mw, (req: Request, res: Response) => {
+    let data: IImageCarouselFrontInput | IImageCarouselLocInput
     if(req.params.type === 'front') {
-      return ImgCarouselService.addImgFront(res, req.body)
+      data = <IImageCarouselFrontInput> {
+        img: `homepage/carousel-front/${req.body.img}`,
+        isActive: req.body.isActive
+      }
+      return ImgCarouselService.addImgFront(res, <IImageCarouselFrontInput>data)
     }
-    return ImgCarouselService.addImgLoc(res, req.body)
+    data = <IImageCarouselLocInput> {
+      img: `homepage/carousel-location/${req.body.img}`,
+      desc: req.body.desc,
+      isActive: req.body.isActive
+    }
+    return ImgCarouselService.addImgLoc(res, <IImageCarouselLocInput>data)
   })
 
 export default postImgCarouselRoutes

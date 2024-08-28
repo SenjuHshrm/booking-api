@@ -429,6 +429,7 @@ let getUserIDVerification = async (res: Response, page: number, limit: number, n
         'userInfo._id': 1,
         'userInfo.name': 1,
         'userInfo.img': 1,
+        type: 1,
         status: 1
       }
     }, {
