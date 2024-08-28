@@ -5,11 +5,9 @@ import ImgCarouselService from './../../../img-carousel/img-carousel.service'
 
 let mw = (req: Request, res: Response, next: NextFunction) => {
   if(req.params.type === 'front') {
-    uploadCarouselFrontImg.single('imgFile')
-    return next()
+    return uploadCarouselFrontImg.single('imgFile')(req, res, next)
   }
-  uploadCarouselLocImg.single('imgFile')
-  return next()
+  return uploadCarouselLocImg.single('imgFile')(req, res, next)
 }
 
 const postImgCarouselRoutes: Router = Router()
