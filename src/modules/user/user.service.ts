@@ -1,3 +1,4 @@
+import { PersonalAccessToken } from './../auth/schema/PersonalAccessToken.schema';
 import {
   IStaycation,
   IStaycationSchema,
@@ -54,7 +55,13 @@ let register = async (
     // sendPassword(u.email, newPassword)
     PaymentService.addCustomer(user.id, u, "");
     new Wishlist({ user: user.id, staycation: [] }).save();
-    return res.status(201).json({ success: true });
+    let token: { access: string, refresh: string } = auth.generateToken(user.img)
+    new PersonalAccessToken({
+      userId: auth.userId,
+      accessToken: token.access,
+      refreshToken: token.refresh
+    }).save()
+    return res.status(201).json({ token: token.access });
   } catch (e: any) {
     logger("user.controller", "register", e.message, "USR-0001");
     return res.status(500).json({ code: "USR-0001" });
