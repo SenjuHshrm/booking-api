@@ -21,3 +21,9 @@ export interface INotificationInput {
   msg: string;
   isRead: boolean;
 }
+
+export interface INotificationCountSchema extends Document {
+  user: typeof Types.ObjectId | PopulatedDoc<IUserPrev>;
+  notif: number;
+  msg: number;
+}

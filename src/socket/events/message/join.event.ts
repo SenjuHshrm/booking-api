@@ -10,6 +10,7 @@ const join = (socket: Socket) => {
     if(roomIds.length > 0) {
       socket.join(roomIds)
     }
+    console.log(`User ${id} joined msg`)
   }
 
   socket.on('msg:join', mainJoin)
