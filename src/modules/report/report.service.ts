@@ -49,16 +49,19 @@ let getReportList = async (res: Response, page: number, limit: number, name?: st
         'reportedInfo.name.fName': 1,
         'reportedInfo.name.mName': 1,
         'reportedInfo.name.lName': 1,
+        'reportedInfo.name.xName': 1,
         'reportedInfo.img': 1,
         'reportedInfo.id': 1,
         'reporterInfo.id': 1,
         'reporterInfo.img': 1,
+        'reporterInfo.name.xName': 1,
         'reporterInfo.name.lName': 1,
         'reporter.name.mName': 1,
         'reporterInfo.name.fName': 1,
         createdAt: 1,
         updatedAt: 1,
-        action: 1
+        action: 1,
+        msg: 1
       }
     }, {
       $facet: {

@@ -56,7 +56,7 @@ let updateImgLoc = async (res: Response, id: string, data: IImageCarouselLocInpu
 let deleteImgFront = async (res: Response, id: string): Promise<Response> => {
   try {
     let del: IImageCarouselFrontSchema = <IImageCarouselFrontSchema>(await ImageCarouselFront.findByIdAndDelete(id).exec())
-    unlinkSync(join(global.appRoot, `/uploads${del.img}`))
+    unlinkSync(join(global.appRoot, `/uploads/${del.img}`))
     return res.status(200).json({ success: true })
   } catch(e: any) {
     logger('img-carousel.controller', 'deleteImgFront', e.message, 'IMC-0005')
@@ -67,7 +67,7 @@ let deleteImgFront = async (res: Response, id: string): Promise<Response> => {
 let deleteImgLoc = async (res: Response, id: string): Promise<Response> => {
   try {
     let del: IImageCarouselLocSchema = <IImageCarouselLocSchema>(await ImageCarouselLocation.findByIdAndDelete(id).exec())
-    unlinkSync(join(global.appRoot, `/uploads${del.img}`))
+    unlinkSync(join(global.appRoot, `/uploads/${del.img}`))
     return res.status(200).json({ success: true })
   } catch(e: any) {
     logger('img-carousel.controller', 'deleteImgLoc', e.message, 'IMC-0006')
