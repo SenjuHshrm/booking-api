@@ -24,6 +24,7 @@ import { join } from "path";
 import moment from "moment";
 import PaymentService from "./../payment/payment.service";
 import UserVerification from "./schema/UserVerification.schema";
+import NotificationCount from './../notification/schema/NotificationCount.schema'
 
 let register = async (
   res: Response,
@@ -55,6 +56,7 @@ let register = async (
     // sendPassword(u.email, newPassword)
     PaymentService.addCustomer(user.id, u, "");
     new Wishlist({ user: user.id, staycation: [] }).save();
+    new NotificationCount({ user: user.id, notif: 0, msg: 0 }).save()
     let token: { access: string, refresh: string } = auth.generateToken(user.img)
     new PersonalAccessToken({
       userId: auth.userId,

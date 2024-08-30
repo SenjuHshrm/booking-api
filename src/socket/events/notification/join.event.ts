@@ -7,6 +7,7 @@ const join = (socket: Socket) => {
     redisClient.rPush(id, socket.id)
     socket.join(`notif:${id}`)
     socket.join('notif:general')
+    console.log(`User ${id} joined notif`)
   }
 
   socket.on('notif:join', mainJoin)
