@@ -141,6 +141,27 @@ let updateStaycationFromAdmin = async (res: Response, id: string, form: any): Pr
   }
 }
 
+let getAllStaycations = async (res: Response, page: number, limit: number, name?: string,): Promise<any> => {
+  try {
+    let filter = {}
+    if(name !== undefined) filter = { name: { $regex: new RegExp(`^${name}`), $options: 'imu' } }
+    let total = await Staycation.countDocuments(filter).exec()
+    let list = await Staycation.find(filter).populate({ path: 'host', select: '_id name img' }).skip(page).limit(limit).exec()
+    let resp = Promise.all(list.map(async (ls) => {
+      let prop = await ProprietorApplication.findOne({ user: ls.host, 'documents.staycationId': ls.id }).exec()
+      if(prop) {
+        let i = prop.documents.findIndex((d: any) => d.staycationId === ls.id)
+        return { ...ls._doc, documents: prop?.documents[i] }
+      }
+      return { ...ls._doc, documents: null }
+    }))
+    return res.status(200).json({ total, list: await resp })
+  } catch(e: any) {
+    logger('staycation.controller', 'updateStaycation', e.message, 'STC-0011')
+    return res.status(500).json({ code: 'STC-0011' })
+  }
+}
+
 
 const StaycationService = {
   applyProprietorship,
@@ -152,7 +173,8 @@ const StaycationService = {
   getDetails,
   getGallery,
   getRecentSearches,
-  updateStaycationFromAdmin
+  updateStaycationFromAdmin,
+  getAllStaycations
 }
 
 export default StaycationService

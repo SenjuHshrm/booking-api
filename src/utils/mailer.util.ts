@@ -35,7 +35,7 @@ export const sendPassword = (email: string, passwordText: string) => {
 
 export const sendUploadLinkSupportDocs = (email: string, link: string) => {
   try {
-    let file = readFileSync(`${global.appRoot}/views/password.html`, { encoding: 'utf-8' })
+    let file = readFileSync(`${global.appRoot}/views/support-docs-link.html`, { encoding: 'utf-8' })
     let template = handlebars.compile(file)
     let replacements = {
       link

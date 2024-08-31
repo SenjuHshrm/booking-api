@@ -472,9 +472,9 @@ let getUserVerificationStatus = async (res: Response, user: string): Promise<Res
   }
 }
 
-let requestSupportingDocs = async (res: Response, user: string, date: string): Promise<Response> => {
+let requestSupportingDocs = async (res: Response, user: string, staycation: string, date: string): Promise<Response> => {
   try {
-    let link = generateJWTSupportingDocsLink(date, user)
+    let link = generateJWTSupportingDocsLink(date, user, staycation)
     let auth: IAuthSchema = <IAuthSchema>(await Auth.findOne({ userId: user }).exec())
     sendUploadLinkSupportDocs(auth.email, link)
     return res.status(200).json({ success: true })
@@ -484,9 +484,9 @@ let requestSupportingDocs = async (res: Response, user: string, date: string): P
   }
 }
 
-let updatePropApplication = async (res: Response, user: string, docs: string): Promise<Response> => {
+let updatePropApplication = async (res: Response, user: string, docs: any): Promise<Response> => {
   try {
-    await ProprietorApplication.findOneAndUpdate({ user }, { $push: { documents: [...docs] } }).exec()
+    await ProprietorApplication.findOneAndUpdate({ user }, { $push: { documents: { ...docs } } }).exec()
     return res.status(200).json({ success: true })
   } catch(e: any) {
     logger('user.controller', 'requestSupportingDocs', e.message, 'USR-0013')

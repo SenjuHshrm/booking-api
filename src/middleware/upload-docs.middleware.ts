@@ -7,8 +7,8 @@ import { join } from 'path'
 
 let supportDocs: StorageEngine = multer.diskStorage({
   destination: (req: Request, file: Express.Multer.File, cb: (e: Error | null, d: string) => void) => {
-    let dest = join(global.appRoot, `/uplaods/docs/${req.params.id}`)
-    if(!existsSync(join(global.appRoot, '/uplaods/docs'))) mkdirSync(join(global.appRoot, '/uplaods/docs'))
+    let dest = join(global.appRoot, `/uploads/docs/${req.params.id}`)
+    if(!existsSync(join(global.appRoot, '/uploads/docs'))) mkdirSync(join(global.appRoot, '/uploads/docs'))
     if(!existsSync(dest)) mkdirSync(dest)
     cb(null, dest)
   },
@@ -17,7 +17,7 @@ let supportDocs: StorageEngine = multer.diskStorage({
   }
 })
 
-export const uploadSupportingDocs: Multer = multer({ dest: '/uplaods/docs', storage: supportDocs })
+export const uploadSupportingDocs: Multer = multer({ dest: '/uploads/docs', storage: supportDocs })
 
 export const uploadDocsAuth = (req: Request, res: Response, next: NextFunction) => {
   let auth: string[] | undefined = req.headers.authorization?.split(' ')

@@ -1,10 +1,10 @@
-import { Schema, Types, model } from 'mongoose';
+import { Schema, Types, model, SchemaTypes } from 'mongoose';
 import { IProprietorApplicationSchema } from '../user.interface';
 
 let propAppSchema: Schema<IProprietorApplicationSchema> = new Schema<IProprietorApplicationSchema>({
   user: { type: Types.ObjectId, ref: 'user' },
   status: { type: String, enum: { values: ['pending', 'approved', 'declined'] } },
-  documents: { type: [String] },
+  documents: { type: Schema.Types.Mixed },
   listings: { type: [Types.ObjectId], ref: 'staycation' }
 }, {
   timestamps: true

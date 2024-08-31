@@ -33,4 +33,10 @@ const getStaycationRoutes: Router = Router()
     return StaycationService.getRecentSearches(res, req.params.id)
   })
 
+  .get('/all/:page/:limit', passport.authenticate('jwt', { session: false }), (req: Request, res: Response) => {
+    let limit: number = parseInt(req.params.limit)
+    let page: number = (parseInt(req.params.page) - 1) * limit
+    return StaycationService.getAllStaycations(res, page, limit, <string>req.query.name)
+  })
+
 export default getStaycationRoutes

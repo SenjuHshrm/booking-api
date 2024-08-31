@@ -20,8 +20,8 @@ export const decrypt = (encrypted: string): string => {
   return decrypted
 }
 
-export const generateJWTSupportingDocsLink = (currDate: string, user: string): string => {
+export const generateJWTSupportingDocsLink = (currDate: string, user: string, staycation: string): string => {
   let date = moment(currDate, 'MM/DD/YYYY').add(2, 'days').format('MM/DD/YYYY')
-  let token = jwt.sign({ sub: user, expiration: date }, env.JWT_SECRET, { expiresIn: '2d' })
-  return `${env.HOST}/supporting-docs?token=${token}&user=${user}`
+  let token = jwt.sign({ sub: user, staycationId: staycation, expiration: date }, env.JWT_SECRET, { expiresIn: '2d' })
+  return `${env.HOST}/supporting-docs?token=${token}&user=${user}&staycation=${staycation}`
 }

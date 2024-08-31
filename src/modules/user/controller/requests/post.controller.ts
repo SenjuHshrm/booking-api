@@ -46,12 +46,16 @@ const postUserRoutes: Router = Router()
     return UserService.uploadVerification(res, data)
   })
 
-  .post('/request-docs/:userId', passport.authenticate('jwt', { session: false }), (req: Request, res: Response) => {
-    return UserService.requestSupportingDocs(res, req.params.userId, req.body.date)
+  .post('/request-docs/:userId/:staycationId', passport.authenticate('jwt', { session: false }), (req: Request, res: Response) => {
+    return UserService.requestSupportingDocs(res, req.params.userId, req.params.staycationId, req.body.date)
   })
 
-  .post('/upload-docs/:id', uploadDocsAuth, uploadSupportingDocs.fields([{ name: 'docs' }]), (req: Request, res: Response) => {
-    let docs = req.body.documents.map((d: string) => `/docs/${req.params.id}/${d}`)
+  .post('/upload-docs/:id', uploadSupportingDocs.fields([{ name: 'docs' }]), (req: Request, res: Response) => {
+    let docsArr = JSON.parse(req.body.documents)
+    let docs = {
+      staycationId: req.body.staycationId,
+      docs: docsArr.map((d: string) => `/docs/${req.params.id}/${d}`)
+    }
     return UserService.updatePropApplication(res, req.params.id, docs)
   })
 

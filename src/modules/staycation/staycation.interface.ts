@@ -40,6 +40,7 @@ export interface IStaycationSchema extends Document {
   bedroomList: string[];
   isListed: boolean;
   isApproved: boolean;
+  _doc: Omit<this, '_doc'>
 }
 
 export interface IStaycationDiscountSchema extends Document {
