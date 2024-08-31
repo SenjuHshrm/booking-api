@@ -69,7 +69,12 @@ export interface IUserInput {
 }
 
 export interface IProprietorApplicationSchema extends Document {
-  userId: typeof Types.ObjectId;
+  user: typeof Types.ObjectId | PopulatedDoc<IUserPrev>;
+  status: 'pending' | 'approved' | 'declined';
+  documents: string[];
+  listings: typeof Types.ObjectId[] | PopulatedDoc<any>;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface IWishlistSchema extends Document {

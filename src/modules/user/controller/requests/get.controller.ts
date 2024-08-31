@@ -13,7 +13,7 @@ const getUserRoutes: Router = Router()
   .get('/proprietor-application/:page/:limit', (req: Request, res: Response) => {
     let limit: number = parseInt(req.params.limit)
     let page: number = (parseInt(req.params.page) - 1) * limit
-    return UserService.getProprietorApplications(res, page, limit, <string>req.query.isApproved)
+    return UserService.getProprietorApplications(res, page, limit, <string>req.query.status)
   })
 
   .get('/profile/:id', passport.authenticate('jwt', { session: false }), (req: Request, res: Response) => {

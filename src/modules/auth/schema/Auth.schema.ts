@@ -9,7 +9,7 @@ let AuthSchema: Schema<IAuthSchema> = new Schema<IAuthSchema>({
   email: { type: String, unique: true, required: true },
   password: { type: String },
   google: Schema.Types.Mixed,
-  access: { type: [String], required: true, enum: { values: Object.keys(EUserType) } }
+  access: { type: [String], required: true }
 }, {
   timestamps: true
 })

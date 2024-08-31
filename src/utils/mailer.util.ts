@@ -32,3 +32,23 @@ export const sendPassword = (email: string, passwordText: string) => {
     logger('mailer.util', 'sendPassword', e.message, 'MLR-0001')
   }
 }
+
+export const sendUploadLinkSupportDocs = (email: string, link: string) => {
+  try {
+    let file = readFileSync(`${global.appRoot}/views/password.html`, { encoding: 'utf-8' })
+    let template = handlebars.compile(file)
+    let replacements = {
+      link
+    }
+    let html = template(replacements)
+    let msg = {
+      from: env.SU_EMAIL,
+      to: email,
+      subject: 'Request for Supporting Documents (Proprietor Application)',
+      html
+    }
+    transporter.sendMail(msg)
+  } catch(e: any) {
+    logger('mailer.util', 'sendUploadLinkSupportDocs', e.message, 'MLR-0002')
+  }
+}
