@@ -8,5 +8,5 @@ import deletePaymentRoutes from "./requests/delete.controller";
 export const paymentRoutes: Router = Router()
   .use('/post', /**passport.authenticate('jwt', { session: false }),*/ postPaymentRoutes)
   .use('/get', passport.authenticate('jwt', { session: false }), getPaymentRoutes)
-  .use('/put', /**passport.authenticate('jwt', { session: false }) */ putPaymentRoutes)
-  .use('/delete', /**passport.authenticate('jwt', { session: false }) */ deletePaymentRoutes)
+  .use('/put', passport.authenticate('jwt', { session: false }), putPaymentRoutes)
+  .use('/delete', passport.authenticate('jwt', { session: false }), deletePaymentRoutes)
