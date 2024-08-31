@@ -1,3 +1,4 @@
+import { IAuthSchema } from './../auth/auth.interface';
 import { IUserSchema } from './../user/user.interface';
 import { Response } from "express";
 import Staycation from './schema/Staycation.schema'
@@ -7,13 +8,31 @@ import { IStaycation, IStaycationInput, IStaycationSchema, IRecentLocationSearch
 import { logger } from './../../utils'
 import User from '../user/schema/User.schema';
 import RecentLocationSearch from './schema/RecentLocationSearch.schema';
+import Auth from './../auth/schema/Auth.schema';
 
 let applyProprietorship = async (res: Response, form: IStaycationInput): Promise<Response<{ success: boolean }>> => {
   try {
+    // let staycation: IStaycationSchema = await new Staycation({ ...form }).save()
+    // let user: IUserSchema = <IUserSchema>(await User.findById(form.host).exec())
+    // if(!user.status.includes('host')) {
+    //   await new ProprietorApplication({
+    //     user: form.host,
+    //     status: 'pending',
+    //     documents,
+    //     listings: [staycation.id]
+    //   }).save()
+    // }
     let staycation: IStaycationSchema = await new Staycation({ ...form }).save()
-    let user: IUserSchema = <IUserSchema>(await User.findById(form.host).exec())
-    if(!user.status.includes('host')) {
-      await new ProprietorApplication({ userId: form.host }).save()
+    let auth: IAuthSchema = <IAuthSchema>(await Auth.findOne({ userId: form.host }).exec())
+    if(auth.access.indexOf('host') === -1) {
+      new ProprietorApplication({
+        user: form.host,
+        status: 'pending',
+        listings: [staycation.id],
+        documents: []
+      }).save()
+    } else {
+      await ProprietorApplication.findOneAndUpdate({ user: form.host }, { $push: { listings: staycation.id } }).exec()
     }
     return res.status(201).json({ success: true })
   } catch(e: any) {

@@ -5,7 +5,7 @@ export interface IAuthSchema extends Document {
   email: string;
   password: string;
   google?: any;
-  access: keyof typeof EUserType[];
+  access: string[];
   generateHash: (password: string) => void;
   compareHash: (password: string) => boolean;
   generateToken: (img: string) => { access: string, refresh: string }

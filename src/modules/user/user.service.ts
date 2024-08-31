@@ -16,7 +16,7 @@ import {
 import { IAuthSchema } from "../auth/auth.interface";
 import User from "./schema/User.schema";
 import Auth from "../auth/schema/Auth.schema";
-import { logger, randomPassword, sendPassword } from "./../../utils";
+import { logger, randomPassword, sendPassword, generateJWTSupportingDocsLink, sendUploadLinkSupportDocs } from "./../../utils";
 import ProprietorApplication from "./schema/ProprietorApplication.schema";
 import Staycation from "./../staycation/schema/Staycation.schema";
 import Wishlist from "./schema/Wishlist.schema";
@@ -99,56 +99,61 @@ let getProprietorApplications = async (
   res: Response,
   page: number,
   limit: number,
-  approvedAsProprietorOn?: string
+  status?: string
 ): Promise<Response> => {
   try {
-    let pipelineMatch = {};
-    if (approvedAsProprietorOn === undefined) {
-      pipelineMatch = {
-        $or: [
-          { "user.approvedAsProprietorOn": { $ne: "" } },
-          { "user.approvedAsProprietorOn": "" },
-        ],
-      };
-    } else {
-      if (approvedAsProprietorOn === "true") {
-        pipelineMatch = { "user.approvedAsProprietorOn": { $ne: "" } };
-      } else {
-        pipelineMatch = { "user.approvedAsProprietorOn": "" };
-      }
-    }
+    // let pipelineMatch = {};
+    // if (approvedAsProprietorOn === undefined) {
+    //   pipelineMatch = {
+    //     $or: [
+    //       { "user.approvedAsProprietorOn": { $ne: "" } },
+    //       { "user.approvedAsProprietorOn": "" },
+    //     ],
+    //   };
+    // } else {
+    //   if (approvedAsProprietorOn === "true") {
+    //     pipelineMatch = { "user.approvedAsProprietorOn": { $ne: "" } };
+    //   } else {
+    //     pipelineMatch = { "user.approvedAsProprietorOn": "" };
+    //   }
+    // }
 
-    let propApp = await ProprietorApplication.aggregate([
-      {
-        $lookup: {
-          from: "users",
-          localField: "userId",
-          foreignField: "_id",
-          as: "user",
-        },
-      },
-      {
-        $match: pipelineMatch,
-      },
-      {
-        $project: {
-          _id: 1,
-          userId: 1,
-          createdAt: 1,
-          updatedAt: 1,
-          "user.name": 1,
-          "user.img": 1,
-          "user.approvedAsProprietorOn": 1,
-        },
-      },
-      {
-        $facet: {
-          paginatedResults: [{ $skip: page }, { $limit: limit }],
-          totalCount: [{ $count: "count" }],
-        },
-      },
-    ]).exec();
-    return res.status(200).json(propApp);
+    // let propApp = await ProprietorApplication.aggregate([
+    //   {
+    //     $lookup: {
+    //       from: "users",
+    //       localField: "userId",
+    //       foreignField: "_id",
+    //       as: "user",
+    //     },
+    //   },
+    //   {
+    //     $match: pipelineMatch,
+    //   },
+    //   {
+    //     $project: {
+    //       _id: 1,
+    //       userId: 1,
+    //       createdAt: 1,
+    //       updatedAt: 1,
+    //       "user.name": 1,
+    //       "user.img": 1,
+    //       "user.approvedAsProprietorOn": 1,
+    //     },
+    //   },
+    //   {
+    //     $facet: {
+    //       paginatedResults: [{ $skip: page }, { $limit: limit }],
+    //       totalCount: [{ $count: "count" }],
+    //     },
+    //   },
+    // ]).exec();
+    // return res.status(200).json(propApp);
+    let filter = {}
+    if(status !== undefined) filter = { status }
+    let total = await ProprietorApplication.countDocuments(filter).exec()
+    let list: IProprietorApplicationSchema[] = <IProprietorApplicationSchema[]>(await ProprietorApplication.find(filter).populate([{ path: 'user', select: '_id name img' }, { path: 'listings', select: '_id name' }]).skip(page).limit(limit).exec())
+    return res.status(200).json({ total, list })
   } catch (e: any) {
     logger(
       "user.controller",
@@ -174,6 +179,7 @@ let setAsProprietor = async (
     await User.findByIdAndUpdate(userId, {
       $set: { approvedAsProprietorOn: new Date().toISOString() },
     }).exec();
+    await ProprietorApplication.findOneAndUpdate({ user: userId }, { $set: { status: 'approved' } }).exec()
     return res.status(200).json({ success: true });
   } catch (e: any) {
     logger("user.controller", "setAsProprietor", e.message, "USR-0004");
@@ -466,6 +472,28 @@ let getUserVerificationStatus = async (res: Response, user: string): Promise<Res
   }
 }
 
+let requestSupportingDocs = async (res: Response, user: string, date: string): Promise<Response> => {
+  try {
+    let link = generateJWTSupportingDocsLink(date, user)
+    let auth: IAuthSchema = <IAuthSchema>(await Auth.findOne({ userId: user }).exec())
+    sendUploadLinkSupportDocs(auth.email, link)
+    return res.status(200).json({ success: true })
+  } catch(e: any) {
+    logger('user.controller', 'requestSupportingDocs', e.message, 'USR-0012')
+    return res.status(500).json({ code: 'USR-0012' })
+  }
+}
+
+let updatePropApplication = async (res: Response, user: string, docs: string): Promise<Response> => {
+  try {
+    await ProprietorApplication.findOneAndUpdate({ user }, { $push: { documents: [...docs] } }).exec()
+    return res.status(200).json({ success: true })
+  } catch(e: any) {
+    logger('user.controller', 'requestSupportingDocs', e.message, 'USR-0013')
+    return res.status(500).json({ code: 'USR-0013' })
+  }
+}
+
 const UserService = {
   register,
   getUsersByAccess,
@@ -483,7 +511,9 @@ const UserService = {
   uploadVerification,
   setUserVerificationStatus,
   getUserIDVerification,
-  getUserVerificationStatus
+  getUserVerificationStatus,
+  requestSupportingDocs,
+  updatePropApplication
 };
 
 export default UserService;

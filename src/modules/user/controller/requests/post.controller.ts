@@ -3,6 +3,7 @@ import { profileImgStorageMedia, uploadUserVerification } from './../../../../mi
 import { Request, Response, Router } from 'express';
 import UserService from '../../user.service';
 import passport from 'passport';
+import { uploadDocsAuth, uploadSupportingDocs } from './../../../../middleware';
 
 const postUserRoutes: Router = Router()
   .post('/add', (req: Request, res: Response) => {
@@ -43,6 +44,15 @@ const postUserRoutes: Router = Router()
       idBack: `/user-verification/${req.body.id}/${req.body.idBackFilename}`
     }
     return UserService.uploadVerification(res, data)
+  })
+
+  .post('/request-docs/:userId', passport.authenticate('jwt', { session: false }), (req: Request, res: Response) => {
+    return UserService.requestSupportingDocs(res, req.params.userId, req.body.date)
+  })
+
+  .post('/upload-docs/:id', uploadDocsAuth, uploadSupportingDocs.fields([{ name: 'docs' }]), (req: Request, res: Response) => {
+    let docs = req.body.documents.map((d: string) => `/docs/${req.params.id}/${d}`)
+    return UserService.updatePropApplication(res, req.params.id, docs)
   })
 
 export default postUserRoutes
