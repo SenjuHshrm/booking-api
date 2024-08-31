@@ -1,4 +1,5 @@
-import { Document, Types } from "mongoose";
+import { IUserPrev } from "./../user/user.interface";
+import { Document, Types, PopulatedDoc } from "mongoose";
 
 export interface IPaymentSchema extends Document {
   userId: typeof Types.ObjectId;
@@ -28,4 +29,20 @@ export interface ITransactionSchema extends Document {
   clientKey: string;
   status: string;
   checkoutURL: string;
+}
+
+export interface IPaymentMethodSchema extends Document {
+  user: typeof Types.ObjectId | PopulatedDoc<IUserPrev>;
+  pmId: string;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IPaymentMethod {
+  user: typeof Types.ObjectId | PopulatedDoc<IUserPrev>;
+  pmId: string;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
 }

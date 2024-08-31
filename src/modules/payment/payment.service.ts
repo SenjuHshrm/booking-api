@@ -2,8 +2,8 @@ import { IAuthSchema } from './../auth/auth.interface';
 import { IUserInput, IUserSchema } from './../user/user.interface';
 import User from './../user/schema/User.schema'
 import { Response } from "express"
-import Payment from './schema/Payment.schema'
-import { IPaymentSchema, IPaymentInput, IPayment } from "./payment.interface"
+import PaymentMethod from './schema/PaymentMethod.schema'
+import { IPaymentSchema, IPaymentInput, IPayment, IPaymentMethodSchema } from "./payment.interface"
 import { logger, decrypt } from './../../utils'
 import { env } from './../../config'
 import Transaction from './schema/Transaction.schema';
@@ -47,7 +47,7 @@ let addCustomer = async (userId: string, data: IUserInput, contact: string) => {
   }
 }
 
-let getCustomerPaymentMethod = async (res: Response, userId: string): Promise<Response> => {
+let getCustomerPaymentMethod = async (res: Response, user: string): Promise<Response> => {
   try {
     // let opt = {
     //   method: 'GET',
@@ -60,7 +60,7 @@ let getCustomerPaymentMethod = async (res: Response, userId: string): Promise<Re
     // let req = await fetch(`${baseURL}/customers/${payment.clientId}/payment_methods`, opt)
     // let resp = await req.json()
     // return res.status(200).json(resp)
-    let piList: IPaymentSchema[] = <IPaymentSchema[]>(await Payment.find({ userId }).exec())
+    let piList: IPaymentMethodSchema[] = <IPaymentMethodSchema[]>(await PaymentMethod.find({ user }).exec())
     return res.status(200).json(piList)
   } catch(e: any) {
     logger('payment.controller', 'getCustomerPaymentMethod', e.message, 'PYMT-0002')
@@ -180,12 +180,46 @@ let attachToPaymentIntent = async (res: Response, data: any, piId: string) => {
   }
 }
 
+let savePaymentMethodId = async (res: Response, data: any): Promise<Response> => {
+  try {
+    new PaymentMethod({ user: data.userId, pmId: data.pmId, isDefault: false }).save()
+    return res.status(201).json({ success: true })
+  } catch(e: any) {
+    logger('payment.controller', 'savePaymentMethodId', e.message, 'PYMT-0006')
+    return res.status(500).json({ code: 'PYMT-0006' })
+  }
+}
+
+let setAsDefaultPaymentMethod = async (res: Response, userId: string, pmId: string): Promise<Response> => {
+  try {
+    await PaymentMethod.updateMany({ user: userId }, { $set: { isDefault: false } }).exec()
+    await PaymentMethod.findByIdAndUpdate(pmId, { $set: { isDefault: true } }).exec()
+    return res.status(200).json({ success: true })
+  } catch(e: any) {
+    logger('payment.controller', 'setAsDefaultPaymentMethod', e.message, 'PYMT-0007')
+    return res.status(500).json({ code: 'PYMT-0007' })
+  }
+}
+
+let removePaymentMethod = async (res: Response, id: string): Promise<Response> => {
+  try {
+    await PaymentMethod.findByIdAndDelete(id).exec()
+    return res.status(200).json({ success: true })
+  } catch(e: any) {
+    logger('payment.controller', 'setAsDefaultPaymentMethod', e.message, 'PYMT-0008')
+    return res.status(500).json({ code: 'PYMT-0008' })
+  }
+}
+
 const PaymentService = {
   addCustomer,
   getCustomerPaymentMethod,
   getMerchantPaymentMethods,
   createPaymentIntent,
-  attachToPaymentIntent
+  attachToPaymentIntent,
+  savePaymentMethodId,
+  setAsDefaultPaymentMethod,
+  removePaymentMethod
 }
 
 export default PaymentService
