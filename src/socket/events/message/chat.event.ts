@@ -16,7 +16,7 @@ const chat = (socket: Socket) => {
     // socket.to(data.roomId).emit("msg:chat:send", msg);
     new Message({ ...data })
       .save()
-      .then((m: IMessageSchema) => m.populate('from'))
+      .then((m: IMessageSchema) => m.populate({ path: 'from', select: '_id name img' }))
       .then(m => {
         socket.to(data.roomId).emit('msg:chat:send', m)
       })
