@@ -12,14 +12,14 @@ const chat = (socket: Socket) => {
     //   .save()
     //   .then((m: IMessageSchema) => m.populate("from"))
     //   .then(m => m);
-    
+
     // socket.to(data.roomId).emit("msg:chat:send", msg);
     new Message({ ...data })
       .save()
-      .then((m: IMessageSchema) => m.populate({ path: 'from', select: '_id name img' }))
+      .then((m: IMessageSchema) => m.populate("from"))
       .then(m => {
-        socket.to(data.roomId).emit('msg:chat:send', m)
-      })
+        socket.to(data.roomId).emit("msg:chat:send", m);
+      });
   };
 
   socket.on("msg:chat:receive", receiveChat);
