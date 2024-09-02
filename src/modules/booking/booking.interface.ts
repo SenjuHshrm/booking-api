@@ -1,30 +1,38 @@
+import { PopulatedDoc } from 'mongoose';
 import { Types, Document } from 'mongoose';
 
 export interface IBookingSchema extends Document {
   initiatedBy: typeof Types.ObjectId; // user
   bookTo: typeof Types.ObjectId; // staycation
   arrivalDate: string;
-  transactionId: typeof Types.ObjectId; //transaction
+  transaction: typeof Types.ObjectId | PopulatedDoc<any>; //transaction
+  details: any;
   isCancelled: boolean;
   cancellationPolicy: string;
-  isApproved: boolean
+  isApproved: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface IBooking {
-  initiatedBy: any; // user
-  bookTo: any; // staycation
+  _id: string;
+  initiatedBy: typeof Types.ObjectId; // user
+  bookTo: typeof Types.ObjectId; // staycation
   arrivalDate: string;
-  paymentType: string;
-  payment: number;
+  transaction: typeof Types.ObjectId | PopulatedDoc<any>; //transaction
+  details: any;
   isCancelled: boolean;
+  cancellationPolicy: string;
+  isApproved: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface IBookingInput {
   initiatedBy: string; // user
   bookTo: string; // staycation
   arrivalDate: string;
-  paymentType: string;
-  payment: number;
+  details: any;
   isCancelled: boolean;
   cancellationPolicy: string;
   isApproved: boolean

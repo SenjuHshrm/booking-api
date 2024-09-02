@@ -29,6 +29,7 @@ export interface ITransactionSchema extends Document {
   clientKey: string;
   status: string;
   checkoutURL: string;
+  _doc: Omit<this, '_doc'>
 }
 
 export interface IPaymentMethodSchema extends Document {

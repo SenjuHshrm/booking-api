@@ -8,6 +8,7 @@ import { messageRoutes } from './modules/message/controller/message.controller';
 import faqsRoutes from "./modules/faqs/controller/faqs.controller";
 import reportRoutes from "./modules/report/controller/report.controller";
 import imgCarouselRoutes from "./modules/img-carousel/controller/img-carousel.controller";
+import bookingRoutes from './modules/booking/controller/booking.controller'
 
 export const Routes: Router = Router()
   .use('/auth', authRoutes)
@@ -19,3 +20,4 @@ export const Routes: Router = Router()
   .use('/faqs', faqsRoutes)
   .use('/report', reportRoutes)
   .use('/img-carousel', imgCarouselRoutes)
+  .use('/booking', bookingRoutes)
