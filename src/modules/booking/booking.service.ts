@@ -69,7 +69,7 @@ let getBookingDetails = async (res: Response, id: string): Promise<Response> => 
 let tempBooking = async (res: Response, data: IBookingInput, trn: any): Promise<Response> => {
   try {
     let newTrn = await new Transaction({ ...trn }).save()
-    new Booking({ ...data, transaction: newTrn.id })
+    new Booking({ ...data, transaction: newTrn.id }).save()
     return res.status(201).json({ success: true })
   } catch(e: any) {
     logger('booking.controller', 'tempBooking', e.message, 'BKNG-0007')
