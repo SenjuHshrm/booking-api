@@ -2,6 +2,7 @@ import { Response } from 'express'
 import Booking from './schema/Booking.schema'
 import { IBookingSchema, IBookingInput, IBookingPayment } from './booking.interface'
 import { logger } from './../../utils/logger.util';
+import Transaction from './../payment/schema/Transaction.schema';
 
 let addBooking = async (res: Response, data: IBookingInput): Promise<Response> => {
   try {
@@ -65,13 +66,25 @@ let getBookingDetails = async (res: Response, id: string): Promise<Response> => 
   }
 }
 
+let tempBooking = async (res: Response, data: IBookingInput, trn: any): Promise<Response> => {
+  try {
+    let newTrn = await new Transaction({ ...trn }).save()
+    new Booking({ ...data, transaction: newTrn.id })
+    return res.status(201).json({ success: true })
+  } catch(e: any) {
+    logger('booking.controller', 'tempBooking', e.message, 'BKNG-0007')
+    return res.status(500).json({ code: 'BKNG-0007' })
+  }
+}
+
 const BookingService = {
   addBooking,
   addPaymentToBooking,
   listBookingByGuestId,
   listAllBookingsByHost,
   removeBooking,
-  getBookingDetails
+  getBookingDetails,
+  tempBooking
 }
 
 export default BookingService

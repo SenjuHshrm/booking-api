@@ -89,7 +89,7 @@ let getMerchantPaymentMethods = async (res: Response): Promise<Response> => {
 
 let createPaymentIntent = async (res: Response, data: any, a: Express.User) => {
   try {
-    console.log(data)
+    console.log(data.amount * 100)
     let auth: IAuthSchema = <IAuthSchema>a;
     let user: IUserSchema = <IUserSchema>(await User.findById(auth.userId).exec())
     let opt = {
@@ -104,7 +104,7 @@ let createPaymentIntent = async (res: Response, data: any, a: Express.User) => {
           attributes: {
             amount: data.amount * 100,
             payment_method_allowed: [data.paymentType],
-            payment_method_options: (data.selectedPaymentType === 'card') ? {
+            payment_method_options: (data.paymentType === 'card') ? {
               card: {
                 request_three_d_secure: 'any'
               }
@@ -113,13 +113,18 @@ let createPaymentIntent = async (res: Response, data: any, a: Express.User) => {
             capture_type: 'automatic',
             // setup_future_usage: { session_type: 'on_session', customer_id: user.paymentClientId },
             description: `Booking ${data.staycationId}`,
-            statement_descriptor: `Request booking of user ${user.id} for staycation ${data.staycationId}`
+            statement_descriptor: `Request booking of user ${user.id} for staycation ${data.staycationId}`,
+            metadata: {
+              userId: user.id,
+              staycationId: data.staycationId
+            }
           }
         }
       })
     }
     let reqt = await fetch(`${baseURL}/payment_intents`, opt)
     let resp = await reqt.json()
+    console.log(resp)
     new Transaction({
       userId: user.id,
       staycationId: data.staycationId,
@@ -161,6 +166,7 @@ let attachToPaymentIntent = async (res: Response, data: any, piId: string) => {
     }
     let reqt = await fetch(`${baseURL}/payment_intents/${piId}/attach`, opt)
     let resp = await reqt.json()
+    console.log(resp)
     trn.checkoutURL = resp.data.attributes.next_action.redirect.url
     trn.status = resp.data.attributes.status
     trn.save()
