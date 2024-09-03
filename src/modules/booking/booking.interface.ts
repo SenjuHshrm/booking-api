@@ -1,5 +1,10 @@
-import { PopulatedDoc } from 'mongoose';
-import { Types, Document } from 'mongoose';
+import { PopulatedDoc } from "mongoose";
+import { Types, Document } from "mongoose";
+
+export interface PaginationParams {
+  limit: number;
+  offset: number;
+}
 
 export interface IBookingSchema extends Document {
   initiatedBy: typeof Types.ObjectId; // user
@@ -10,6 +15,8 @@ export interface IBookingSchema extends Document {
   isCancelled: boolean;
   cancellationPolicy: string;
   isApproved: boolean;
+  checkedIn?: Date;
+  checkedOut?: Date;
   createdAt: string;
   updatedAt: string;
 }
@@ -35,7 +42,7 @@ export interface IBookingInput {
   details: any;
   isCancelled: boolean;
   cancellationPolicy: string;
-  isApproved: boolean
+  isApproved: boolean;
 }
 
 export interface IBookingPayment {
