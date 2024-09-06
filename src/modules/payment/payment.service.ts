@@ -146,40 +146,41 @@ let createPaymentIntent = async (res: Response, data: any, a: Express.User) => {
 
 let attachToPaymentIntent = async (res: Response, data: any, piId: string) => {
   try {
-    let trn: ITransactionSchema = <ITransactionSchema>(await Transaction.findOne({ piId }).exec())
-    let opt = {
-      method: 'POST',
-      headers: {
-        accept: 'application/json',
-        'content-type': 'application/json',
-        authorization: authBasic
-      },
-      body: JSON.stringify({
-        data: {
-          attributes: {
-            payment_method: data.id,
-            client_key: trn.clientKey,
-            return_url: `${env.HOST}`
-          }
-        }
-      })
-    }
-    let reqt = await fetch(`${baseURL}/payment_intents/${piId}/attach`, opt)
-    let resp = await reqt.json()
-    console.log(resp)
-    trn.checkoutURL = resp.data.attributes.next_action.redirect.url
-    trn.status = resp.data.attributes.status
-    trn.save()
-    new Booking({
-      initiatedBy: trn.userId,
-      bookTo: trn.staycationId,
-      arrivalDate: data.checkInDate,
-      transactionId: trn.id,
-      isCancelled: false,
-      cancellationPolicy: data.cancellationPolicy,
-      isApproved: (data.bookingProcess === 'for_approval') ? false : true
-    }).save()
-    return res.status(200).json(resp)
+    // let trn: ITransactionSchema = <ITransactionSchema>(await Transaction.findOne({ piId }).exec())
+    // let opt = {
+    //   method: 'POST',
+    //   headers: {
+    //     accept: 'application/json',
+    //     'content-type': 'application/json',
+    //     authorization: authBasic
+    //   },
+    //   body: JSON.stringify({
+    //     data: {
+    //       attributes: {
+    //         payment_method: data.id,
+    //         client_key: trn.clientKey,
+    //         return_url: `${env.HOST}`
+    //       }
+    //     }
+    //   })
+    // }
+    // let reqt = await fetch(`${baseURL}/payment_intents/${piId}/attach`, opt)
+    // let resp = await reqt.json()
+    // console.log(resp)
+    // trn.checkoutURL = resp.data.attributes.next_action.redirect.url
+    // trn.status = resp.data.attributes.status
+    // trn.save()
+    // new Booking({
+    //   initiatedBy: trn.userId,
+    //   bookTo: trn.staycationId,
+    //   arrivalDate: data.checkInDate,
+    //   transactionId: trn.id,
+    //   isCancelled: false,
+    //   cancellationPolicy: data.cancellationPolicy,
+    //   isApproved: (data.bookingProcess === 'for_approval') ? false : true
+    // }).save()
+    // return res.status(200).json(resp)
+    return res.status(200).json({})
   } catch(e: any) {
     logger('payment.controller', 'attachToPaymentIntent', e.message, 'PYMT-0005')
     return res.status(500).json({ code: 'PYMT-0005' })

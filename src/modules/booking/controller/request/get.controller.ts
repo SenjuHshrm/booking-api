@@ -16,24 +16,30 @@ const validatePaginationParams = (
   };
 };
 
-const getBookingRoutes: Router = Router().get(
-  "/list/:id/:page/:limit/:type",
-  passport.authenticate("jwt", { session: false }),
-  (req: Request, res: Response) => {
-    const { limit, offset } = validatePaginationParams(
-      req.params.limit,
-      req.params.page
-    );
+const getBookingRoutes: Router = Router()
+  .get(
+    "/list/:id/:page/:limit/:type",
+    passport.authenticate("jwt", { session: false }),
+    (req: Request, res: Response) => {
+      const { limit, offset } = validatePaginationParams(
+        req.params.limit,
+        req.params.page
+      );
 
-    return BookingService.getBookingByType(
-      res,
-      req.params.type,
-      limit,
-      offset,
-      <string>req.query?.search,
-      req.params.id
-    );
-  }
-);
+      return BookingService.getBookingByType(
+        res,
+        req.params.type,
+        limit,
+        offset,
+        <string>req.query?.search,
+        req.params.id
+      );
+    }
+  )
+  
+  .get('/trips/:user', passport.authenticate('jwt', { session: false }), (req: Request, res: Response) => {
+    return BookingService.listBookingByGuestId(res, req.params.user)
+  })
+
 
 export default getBookingRoutes;

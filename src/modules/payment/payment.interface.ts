@@ -21,14 +21,15 @@ export interface IPaymentInput {
 export interface ITransactionSchema extends Document {
   userId: typeof Types.ObjectId;
   staycationId: typeof Types.ObjectId;
-  piId: string;
-  amount: number;
+  total: number;
   paymentType: 'full' | 'downpayment';
-  remainingBal: number;
-  remainingBalDue: string;
-  clientKey: string;
-  status: string;
-  checkoutURL: string;
+  history: {
+    clientKey: string;
+    amount: number;
+    datePaid: string;
+    checkoutURL: string;
+  }[];
+  status: 'pending' | 'paid';
   _doc: Omit<this, '_doc'>
 }
 

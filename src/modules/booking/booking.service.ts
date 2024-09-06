@@ -9,6 +9,8 @@ import { logger } from "./../../utils/logger.util";
 import Transaction from "./../payment/schema/Transaction.schema";
 import moment from "moment";
 import mongoose from "mongoose";
+import BookingCancellation from "./schema/BookingCancellation.schema";
+import BookingGuest from './schema/BookingGuest.schema'
 
 let addBooking = async (
   res: Response,
@@ -47,7 +49,7 @@ let listBookingByGuestId = async (
     let total = await Booking.countDocuments({ initiatedBy: id }).exec();
     let bookings: IBookingSchema[] = <IBookingSchema[]>(
       await Booking.find({ initiatedBy: id })
-        .populate({ path: "bookTo", select: "_id name media.cover" })
+        .populate({ path: "bookTo", select: "_id name cover" })
         .exec()
     );
     return res.status(200).json({ total, bookings });
@@ -103,7 +105,7 @@ let getBookingDetails = async (
     let booking: IBookingSchema = <IBookingSchema>await Booking.findById(id)
       .populate([
         { path: "initiatedBy", select: "_id name img" },
-        { path: "bookTo", select: "_id name media.cover" },
+        { path: "bookTo", select: "_id name cover" },
       ])
       .exec();
     return res.status(200).json(booking);
@@ -265,13 +267,13 @@ let getBookingByType = async (
       });
     }
 
-    if (type === "for-approval") {
+    if (type === "for_approval") {
       const sevenDaysAgo = moment().subtract(7, "days").startOf("day").toDate();
       const today = moment().endOf("day").toDate();
       filter.$match.$and.push(
         ...[
           {
-            isApproved: false,
+            status: type,
           },
           {
             createdAt: {
@@ -291,7 +293,7 @@ let getBookingByType = async (
       filter.$match.$and.push(
         ...[
           {
-            isApproved: true,
+            status: type,
           },
           {
             createdAt: {
@@ -313,7 +315,7 @@ let getBookingByType = async (
       filter.$match.$and.push(
         ...[
           {
-            isApproved: true,
+            status: type,
           },
           {
             createdAt: {
@@ -325,26 +327,26 @@ let getBookingByType = async (
       );
     }
 
-    if (type === "check-in") {
+    if (type === "current_guest") {
       filter.$match.$and.push(
         ...[
           {
             isApproved: true,
           },
-          { checkedIn: { $exists: true } },
-          { checkedOut: { $exists: false } },
+          { checkInDate: { $exists: true } },
+          { checkOutDate: { $exists: false } },
         ]
       );
     }
 
-    if (type === "check-out") {
+    if (type === "check_out") {
       filter.$match.$and.push(
         ...[
           {
             isApproved: true,
           },
-          { checkedIn: { $exists: true } },
-          { checkedOut: { $exists: true } },
+          { checkInDate: { $exists: true } },
+          { checkOutDate: { $exists: true } },
         ]
       );
     }
@@ -354,7 +356,7 @@ let getBookingByType = async (
       filter.$match.$and.push(
         ...[
           {
-            isApproved: false,
+            status: 'for_approval',
           },
           {
             createdAt: {
@@ -368,6 +370,7 @@ let getBookingByType = async (
     if (type === "cancelled") {
       filter.$match.$and.push({
         isCancelled: true,
+        status: type
       });
     }
 
@@ -399,6 +402,57 @@ let getBookingByType = async (
   }
 };
 
+let requestCancellation = async (res: Response, id: string, reason: string): Promise<Response> => {
+  try {
+    new BookingCancellation({ booking: id, reason, status: 'pending' }).save()
+    return res.status(201).json({ success: true })
+  } catch(e: any) {
+    logger('booking.controller', 'requestCancellation', e.message, 'BKNG-0007')
+    return res.status(500).json({ code: "BKNG-0007" })
+  }
+}
+
+let updateCancelRequest = async (res: Response, booking: string): Promise<Response> => {
+  try {
+    await Booking.findByIdAndUpdate(booking, { $set: { status: 'cancelled' } }).exec()
+    await BookingCancellation.findOneAndUpdate({ booking }, { $set: { status: 'cancelled' } }).exec()
+    return res.status(200).json({ success: true })
+  } catch(e: any) {
+    logger('booking.controller', 'updateCancelRequest', e.message, 'BKNG-0008')
+    return res.status(500).json({ code: 'BKNG-0008' })
+  }
+}
+
+let addGuest = async (res: Response, booking: string, data: any): Promise<Response> => {
+  try {
+    new BookingGuest({ ...data, booking }).save()
+    return res.status(201).json({ success: true })
+  } catch(e: any) {
+    logger('booking.controller', 'updateCancelRequest', e.message, 'BKNG-0009')
+    return res.status(500).json({ code: 'BKNG-0009' })
+  }
+}
+
+let updateBookStatus = async (res: Response, booking: string, status: string): Promise<Response> => {
+  try {
+    await Booking.findByIdAndUpdate(booking, { $set: { status } }).exec()
+    return res.status(201).json({ success: true })
+  } catch(e: any) {
+    logger('booking.controller', 'updateCancelRequest', e.message, 'BKNG-0010')
+    return res.status(500).json({ code: 'BKNG-0010' })
+  }
+}
+
+let checkOutGuest = async (res: Response, id: string, checkOutDate: string, checkOutTime: string): Promise<Response> => {
+  try {
+    await BookingGuest.findByIdAndUpdate(id, { $set: { checkOutDate, checkOutTime } }).exec()
+    return res.status(200).json({ success: true })
+  } catch(e: any) {
+    logger('booking.controller', 'updateCancelRequest', e.message, 'BKNG-0011')
+    return res.status(500).json({ code: 'BKNG-0011' })
+  }
+}
+
 const BookingService = {
   addBooking,
   addPaymentToBooking,
@@ -408,6 +462,11 @@ const BookingService = {
   getBookingDetails,
   tempBooking,
   getBookingByType,
+  requestCancellation,
+  updateCancelRequest,
+  addGuest,
+  updateBookStatus,
+  checkOutGuest
 };
 
 export default BookingService;

@@ -1,3 +1,4 @@
+import { IUserPrev } from "modules/user/user.interface";
 import { PopulatedDoc } from "mongoose";
 import { Types, Document } from "mongoose";
 
@@ -9,14 +10,44 @@ export interface PaginationParams {
 export interface IBookingSchema extends Document {
   initiatedBy: typeof Types.ObjectId; // user
   bookTo: typeof Types.ObjectId; // staycation
-  arrivalDate: string;
+  duration: {
+    start: string;
+    end: string;
+  };
   transaction: typeof Types.ObjectId | PopulatedDoc<any>; //transaction
   details: any;
   isCancelled: boolean;
   cancellationPolicy: string;
-  isApproved: boolean;
-  checkedIn?: Date;
-  checkedOut?: Date;
+  status: 'for_approval' | 'upcoming' | 'arriving' | 'current_guest' | 'check_out' | 'cancelled';
+  checkInDate: string;
+  checkInTime: string;
+  checkOutDate: string;
+  checkOutTime: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IBookingGuestSchema extends Document {
+  booking: typeof Types.ObjectId | PopulatedDoc<any>;
+  name: string;
+  checkInDate: string;
+  checkInTime: string;
+  checkOutDate: string;
+  checkOutTime: string;
+}
+
+// export interface IBookingCancellation extends Document {
+//   booking: typeof Types.ObjectId | PopulatedDoc<any>;
+//   reason: string;
+//   status: 'pending' | 'cancelled';
+//   createdAt: string;
+//   updatedAt: string;
+// }
+
+export interface IBookingCancellationSchema extends Document {
+  booking: typeof Types.ObjectId | PopulatedDoc<any>;
+  reason: string;
+  status: 'pending' | 'cancelled';
   createdAt: string;
   updatedAt: string;
 }
