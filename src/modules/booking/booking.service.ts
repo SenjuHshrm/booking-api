@@ -10,7 +10,7 @@ import Transaction from "./../payment/schema/Transaction.schema";
 import moment from "moment";
 import mongoose from "mongoose";
 import BookingCancellation from "./schema/BookingCancellation.schema";
-import BookingGuest from './schema/BookingGuest.schema'
+import BookingGuest from "./schema/BookingGuest.schema";
 
 let addBooking = async (
   res: Response,
@@ -231,7 +231,8 @@ let getBookingByType = async (
           contact: 1,
         },
         bookTo: 1,
-        arrivalDate: 1,
+        status: 1,
+        duration: 1,
         details: 1,
         transaction: 1,
         isCancelled: 1,
@@ -257,7 +258,10 @@ let getBookingByType = async (
 
     let filter: any = {
       $match: {
-        $and: [{ "bookTo.host": new mongoose.Types.ObjectId(hostId) }],
+        $and: [
+          { "bookTo.host": new mongoose.Types.ObjectId(hostId) },
+          { status: type },
+        ],
       },
     };
 
@@ -267,112 +271,112 @@ let getBookingByType = async (
       });
     }
 
-    if (type === "for_approval") {
-      const sevenDaysAgo = moment().subtract(7, "days").startOf("day").toDate();
-      const today = moment().endOf("day").toDate();
-      filter.$match.$and.push(
-        ...[
-          {
-            status: type,
-          },
-          {
-            createdAt: {
-              $gte: sevenDaysAgo,
-              $lte: today,
-            },
-          },
-        ]
-      );
-    }
+    // if (type === "for_approval") {
+    //   const sevenDaysAgo = moment().subtract(7, "days").startOf("day").toDate();
+    //   const today = moment().endOf("day").toDate();
+    //   filter.$match.$and.push(
+    //     ...[
+    //       {
+    //         status: type,
+    //       },
+    //       {
+    //         createdAt: {
+    //           $gte: sevenDaysAgo,
+    //           $lte: today,
+    //         },
+    //       },
+    //     ]
+    //   );
+    // }
 
-    if (type === "upcoming") {
-      const startOfMonth = moment().startOf("month").toDate();
-      const endOfMonth = moment().endOf("month").toDate();
-      const startOfToday = moment().startOf("day").toDate();
-      const endOfToday = moment().endOf("day").toDate();
-      filter.$match.$and.push(
-        ...[
-          {
-            status: type,
-          },
-          {
-            createdAt: {
-              $gte: startOfMonth,
-              $lte: endOfMonth,
-              $not: {
-                $gte: startOfToday,
-                $lte: endOfToday,
-              },
-            },
-          },
-        ]
-      );
-    }
+    // if (type === "upcoming") {
+    //   const startOfMonth = moment().startOf("month").toDate();
+    //   const endOfMonth = moment().endOf("month").toDate();
+    //   const startOfToday = moment().startOf("day").toDate();
+    //   const endOfToday = moment().endOf("day").toDate();
+    //   filter.$match.$and.push(
+    //     ...[
+    //       {
+    //         status: type,
+    //       },
+    //       {
+    //         createdAt: {
+    //           $gte: startOfMonth,
+    //           $lte: endOfMonth,
+    //           $not: {
+    //             $gte: startOfToday,
+    //             $lte: endOfToday,
+    //           },
+    //         },
+    //       },
+    //     ]
+    //   );
+    // }
 
-    if (type === "arriving") {
-      const startOfToday = moment().startOf("day").toDate();
-      const endOfToday = moment().endOf("day").toDate();
-      filter.$match.$and.push(
-        ...[
-          {
-            status: type,
-          },
-          {
-            createdAt: {
-              $gte: startOfToday,
-              $lte: endOfToday,
-            },
-          },
-        ]
-      );
-    }
+    // if (type === "arriving") {
+    //   const startOfToday = moment().startOf("day").toDate();
+    //   const endOfToday = moment().endOf("day").toDate();
+    //   filter.$match.$and.push(
+    //     ...[
+    //       {
+    //         status: type,
+    //       },
+    //       {
+    //         createdAt: {
+    //           $gte: startOfToday,
+    //           $lte: endOfToday,
+    //         },
+    //       },
+    //     ]
+    //   );
+    // }
 
-    if (type === "current_guest") {
-      filter.$match.$and.push(
-        ...[
-          {
-            isApproved: true,
-          },
-          { checkInDate: { $exists: true } },
-          { checkOutDate: { $exists: false } },
-        ]
-      );
-    }
+    // if (type === "current_guest") {
+    //   filter.$match.$and.push(
+    //     ...[
+    //       {
+    //         isApproved: true,
+    //       },
+    //       { checkInDate: { $exists: true } },
+    //       { checkOutDate: { $exists: false } },
+    //     ]
+    //   );
+    // }
 
-    if (type === "check_out") {
-      filter.$match.$and.push(
-        ...[
-          {
-            isApproved: true,
-          },
-          { checkInDate: { $exists: true } },
-          { checkOutDate: { $exists: true } },
-        ]
-      );
-    }
+    // if (type === "check_out") {
+    //   filter.$match.$and.push(
+    //     ...[
+    //       {
+    //         isApproved: true,
+    //       },
+    //       { checkInDate: { $exists: true } },
+    //       { checkOutDate: { $exists: true } },
+    //     ]
+    //   );
+    // }
 
-    if (type === "pending") {
-      const sevenDaysAgo = moment().subtract(7, "days").startOf("day").toDate();
-      filter.$match.$and.push(
-        ...[
-          {
-            status: 'for_approval',
-          },
-          {
-            createdAt: {
-              $lt: sevenDaysAgo,
-            },
-          },
-        ]
-      );
-    }
+    // if (type === "pending") {
+    //   const sevenDaysAgo = moment().subtract(7, "days").startOf("day").toDate();
+    //   filter.$match.$and.push(
+    //     ...[
+    //       {
+    //         status: "for_approval",
+    //       },
+    //       {
+    //         createdAt: {
+    //           $lt: sevenDaysAgo,
+    //         },
+    //       },
+    //     ]
+    //   );
+    // }
 
-    if (type === "cancelled") {
-      filter.$match.$and.push({
-        isCancelled: true,
-        status: type
-      });
-    }
+    // if (type === "cancelled") {
+    //   filter.$match.$and.push({
+    //     isCancelled: true,
+    //     status: type,
+    //   });
+    // }
 
     const count: any = await Booking.aggregate([
       ...populatedFields,
@@ -402,56 +406,83 @@ let getBookingByType = async (
   }
 };
 
-let requestCancellation = async (res: Response, id: string, reason: string): Promise<Response> => {
+let requestCancellation = async (
+  res: Response,
+  id: string,
+  reason: string
+): Promise<Response> => {
   try {
-    new BookingCancellation({ booking: id, reason, status: 'pending' }).save()
-    return res.status(201).json({ success: true })
-  } catch(e: any) {
-    logger('booking.controller', 'requestCancellation', e.message, 'BKNG-0007')
-    return res.status(500).json({ code: "BKNG-0007" })
+    new BookingCancellation({ booking: id, reason, status: "pending" }).save();
+    return res.status(201).json({ success: true });
+  } catch (e: any) {
+    logger("booking.controller", "requestCancellation", e.message, "BKNG-0007");
+    return res.status(500).json({ code: "BKNG-0007" });
   }
-}
+};
 
-let updateCancelRequest = async (res: Response, booking: string): Promise<Response> => {
+let updateCancelRequest = async (
+  res: Response,
+  booking: string
+): Promise<Response> => {
   try {
-    await Booking.findByIdAndUpdate(booking, { $set: { status: 'cancelled' } }).exec()
-    await BookingCancellation.findOneAndUpdate({ booking }, { $set: { status: 'cancelled' } }).exec()
-    return res.status(200).json({ success: true })
-  } catch(e: any) {
-    logger('booking.controller', 'updateCancelRequest', e.message, 'BKNG-0008')
-    return res.status(500).json({ code: 'BKNG-0008' })
+    await Booking.findByIdAndUpdate(booking, {
+      $set: { status: "cancelled" },
+    }).exec();
+    await BookingCancellation.findOneAndUpdate(
+      { booking },
+      { $set: { status: "cancelled" } }
+    ).exec();
+    return res.status(200).json({ success: true });
+  } catch (e: any) {
+    logger("booking.controller", "updateCancelRequest", e.message, "BKNG-0008");
+    return res.status(500).json({ code: "BKNG-0008" });
   }
-}
+};
 
-let addGuest = async (res: Response, booking: string, data: any): Promise<Response> => {
+let addGuest = async (
+  res: Response,
+  booking: string,
+  data: any
+): Promise<Response> => {
   try {
-    new BookingGuest({ ...data, booking }).save()
-    return res.status(201).json({ success: true })
-  } catch(e: any) {
-    logger('booking.controller', 'updateCancelRequest', e.message, 'BKNG-0009')
-    return res.status(500).json({ code: 'BKNG-0009' })
+    new BookingGuest({ ...data, booking }).save();
+    return res.status(201).json({ success: true });
+  } catch (e: any) {
+    logger("booking.controller", "updateCancelRequest", e.message, "BKNG-0009");
+    return res.status(500).json({ code: "BKNG-0009" });
   }
-}
+};
 
-let updateBookStatus = async (res: Response, booking: string, status: string): Promise<Response> => {
+let updateBookStatus = async (
+  res: Response,
+  booking: string,
+  status: string
+): Promise<Response> => {
   try {
-    await Booking.findByIdAndUpdate(booking, { $set: { status } }).exec()
-    return res.status(201).json({ success: true })
-  } catch(e: any) {
-    logger('booking.controller', 'updateCancelRequest', e.message, 'BKNG-0010')
-    return res.status(500).json({ code: 'BKNG-0010' })
+    await Booking.findByIdAndUpdate(booking, { $set: { status } }).exec();
+    return res.status(201).json({ success: true });
+  } catch (e: any) {
+    logger("booking.controller", "updateCancelRequest", e.message, "BKNG-0010");
+    return res.status(500).json({ code: "BKNG-0010" });
   }
-}
+};
 
-let checkOutGuest = async (res: Response, id: string, checkOutDate: string, checkOutTime: string): Promise<Response> => {
+let checkOutGuest = async (
+  res: Response,
+  id: string,
+  checkOutDate: string,
+  checkOutTime: string
+): Promise<Response> => {
   try {
-    await BookingGuest.findByIdAndUpdate(id, { $set: { checkOutDate, checkOutTime } }).exec()
-    return res.status(200).json({ success: true })
-  } catch(e: any) {
-    logger('booking.controller', 'updateCancelRequest', e.message, 'BKNG-0011')
-    return res.status(500).json({ code: 'BKNG-0011' })
+    await BookingGuest.findByIdAndUpdate(id, {
+      $set: { checkOutDate, checkOutTime },
+    }).exec();
+    return res.status(200).json({ success: true });
+  } catch (e: any) {
+    logger("booking.controller", "updateCancelRequest", e.message, "BKNG-0011");
+    return res.status(500).json({ code: "BKNG-0011" });
   }
-}
+};
 
 const BookingService = {
   addBooking,
@@ -466,7 +497,7 @@ const BookingService = {
   updateCancelRequest,
   addGuest,
   updateBookStatus,
-  checkOutGuest
+  checkOutGuest,
 };
 
 export default BookingService;

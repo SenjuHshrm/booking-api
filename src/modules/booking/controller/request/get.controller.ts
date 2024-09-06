@@ -36,10 +36,13 @@ const getBookingRoutes: Router = Router()
       );
     }
   )
-  
-  .get('/trips/:user', passport.authenticate('jwt', { session: false }), (req: Request, res: Response) => {
-    return BookingService.listBookingByGuestId(res, req.params.user)
-  })
 
+  .get(
+    "/trips/:user",
+    passport.authenticate("jwt", { session: false }),
+    (req: Request, res: Response) => {
+      return BookingService.listBookingByGuestId(res, req.params.user);
+    }
+  );
 
 export default getBookingRoutes;

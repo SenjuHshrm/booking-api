@@ -15,17 +15,30 @@ let bookingSchema: Schema<IBookingSchema> = new Schema<IBookingSchema>(
     bookTo: { type: Types.ObjectId, ref: "staycation" },
     duration: {
       start: String,
-      end: String
+      end: String,
     },
     transaction: { type: Types.ObjectId, ref: "transaction" },
     details: { type: Schema.Types.Mixed },
     isCancelled: { type: Boolean, required: true },
     cancellationPolicy: String,
-    status: { type: String, enum: { values: ['for_approval', 'upcoming', 'arriving', 'current_guest', 'check_out', 'cancelled'] } },
+    status: {
+      type: String,
+      enum: {
+        values: [
+          "for_approval",
+          "upcoming",
+          "arriving",
+          "current_guest",
+          "check_out",
+          "cancelled",
+          "declined",
+        ],
+      },
+    },
     checkInDate: String,
     checkInTime: String,
     checkOutDate: String,
-    checkOutTime: String
+    checkOutTime: String,
   },
   {
     timestamps: true,
