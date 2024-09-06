@@ -39,4 +39,8 @@ const getStaycationRoutes: Router = Router()
     return StaycationService.getAllStaycations(res, page, limit, <string>req.query.name)
   })
 
+  .get('/average-rating/:staycationId', (req: Request, res: Response) => {
+    return StaycationService.averageRatingPerStaycation(res, req.params.staycationId)
+  })
+
 export default getStaycationRoutes

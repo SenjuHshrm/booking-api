@@ -4,7 +4,7 @@ import { Response } from "express";
 import Staycation from './schema/Staycation.schema'
 import ProprietorApplication from './../user/schema/ProprietorApplication.schema'
 import Review from './schema/Review.schema'
-import { IStaycation, IStaycationInput, IStaycationSchema, IRecentLocationSearchSchema, IRecentLocationSearchInput } from './staycation.interface';
+import { IStaycation, IStaycationInput, IStaycationSchema, IRecentLocationSearchSchema, IRecentLocationSearchInput, IReviewInput, IReview, IReviewSchema } from './staycation.interface';
 import { logger } from './../../utils'
 import User from '../user/schema/User.schema';
 import RecentLocationSearch from './schema/RecentLocationSearch.schema';
@@ -162,6 +162,48 @@ let getAllStaycations = async (res: Response, page: number, limit: number, name?
   }
 }
 
+let reviewStaycation = async (res: Response, data: IReviewInput): Promise<Response> => {
+  try {
+    new Review({ ...data }).save()
+    return res.status(201).json({ success: true })
+  } catch(e: any) {
+    logger('staycation.controller', 'reviewStaycation', e.message, 'STC-0012')
+    return res.status(500).json({ code: 'STC-0012' })
+  }
+}
+
+let listReviewsByStaycation = async (res: Response, staycation: string, page: number, limit: number): Promise<Response> => {
+  try {
+    let total = await Review.countDocuments({ staycation }).exec()
+    let list: IReviewSchema[] = <IReviewSchema[]>(await Review.find({ staycation }).populate({ path: 'user', select: '_id name img' }).skip(page).limit(limit).exec())
+    return res.status(200).json({ total, list })
+  } catch(e: any) {
+    logger('staycation.controller', 'listReviewsByStaycation', e.message, 'STC-0013')
+    return res.status(500).json({ code: 'STC-0013' })
+  }
+}
+
+let averageRatingPerStaycation = async (res: Response, staycation: string): Promise<Response> => {
+  try {
+    let total = await Review.countDocuments({ staycation }).exec()
+    let ratings = await Review.aggregate([
+      {
+        $group: {
+          _id: staycation,
+          total: {
+            $sum: '$rating'
+          }
+        }
+      }
+    ]).exec()
+    let av = (ratings[0].total / total).toFixed(1)
+    return res.status(200).json({ average: Number(av) })
+  } catch(e: any) {
+    logger('staycation.controller', 'averageRatingPerStaycation', e.message, 'STC-0014')
+    return res.status(500).json({ code: 'STC-0014' })
+  }
+}
+
 
 const StaycationService = {
   applyProprietorship,
@@ -174,7 +216,10 @@ const StaycationService = {
   getGallery,
   getRecentSearches,
   updateStaycationFromAdmin,
-  getAllStaycations
+  getAllStaycations,
+  reviewStaycation,
+  listReviewsByStaycation,
+  averageRatingPerStaycation
 }
 
 export default StaycationService

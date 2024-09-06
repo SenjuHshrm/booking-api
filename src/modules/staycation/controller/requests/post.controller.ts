@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import StaycationService from '../../staycation.service';
-import { IStaycationInput } from './../../staycation.interface';
-import { uploadStaycationMedia } from '../../../../middleware';
+import { IReviewInput, IStaycationInput } from './../../staycation.interface';
+import { uploadStaycationMedia, uploadReviewMedia } from '../../../../middleware';
 
 const postStaycationRoutes: Router = Router()
   .post('/apply', uploadStaycationMedia.fields([{ name: 'genImg' }, { name: 'bedroom' }]), (req: Request, res: Response) => {
@@ -38,6 +38,22 @@ const postStaycationRoutes: Router = Router()
       isApproved: false
     }
     return StaycationService.applyProprietorship(res, staycation)
+  })
+  
+  .post('/review-staycation/:staycationId', uploadReviewMedia.array('media'), (req: Request, res: Response) => {
+    let media: string[] = []
+    let imgs: Express.Multer.File[] = <Express.Multer.File[]>req.files;
+    for(let i = 0; i < imgs.length; i++) {
+      media.push(`/staycation/${req.body.serverDirName}/reviews/${imgs[i].originalname}`)
+    }
+    let data: IReviewInput = {
+      staycation: req.params.staycationId,
+      user: req.body.user,
+      rating: parseInt(req.body.rating),
+      comment: req.body.comment,
+      media
+    }
+    return StaycationService.reviewStaycation(res, data)
   })
 
 export default postStaycationRoutes

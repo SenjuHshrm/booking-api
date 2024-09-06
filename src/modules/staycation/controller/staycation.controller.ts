@@ -7,7 +7,8 @@ import deleteStaycationRoutes from './requests/delete.controller';
 
 export const staycationRoutes: Router = Router()
   .use('/get', getStaycationRoutes)
-  .use('/post', passport.authenticate('jwt', { session: false }), postStaycationRoutes)
+  // .use('/post', passport.authenticate('jwt', { session: false }), postStaycationRoutes)
+  .use('/post', postStaycationRoutes)
   .use('/put', passport.authenticate('jwt', { session: false }), putStaycationRoutes)
   .use('/delete', passport.authenticate('jwt', { session: false }), deleteStaycationRoutes)
   

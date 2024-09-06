@@ -1,4 +1,4 @@
-import { Schema, Document, Types } from "mongoose";
+import { Schema, Document, Types, PopulatedDoc } from "mongoose";
 import { IUserPrev } from './../user/user.interface';
 
 export interface IStaycationSchema extends Document {
@@ -50,8 +50,19 @@ export interface IStaycationDiscountSchema extends Document {
 }
 
 export interface IReviewSchema extends Document {
-  staycation: typeof Types.ObjectId;
-  user: typeof Types.ObjectId;
+  staycation: typeof Types.ObjectId | PopulatedDoc<any>;
+  user: typeof Types.ObjectId | PopulatedDoc<any>;
+  rating: number;
+  comment: string;
+  media: string[];
+  createdAt: string;
+  updatedAt: string;
+  _doc: Omit<this, '_doc'>;
+}
+
+export interface IReviewInput {
+  staycation: string;
+  user: string;
   rating: number;
   comment: string;
   media: string[];
