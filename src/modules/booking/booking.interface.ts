@@ -8,8 +8,8 @@ export interface PaginationParams {
 }
 
 export interface IBookingSchema extends Document {
-  initiatedBy: typeof Types.ObjectId; // user
-  bookTo: typeof Types.ObjectId; // staycation
+  initiatedBy: typeof Types.ObjectId | PopulatedDoc<IUserPrev>; // user
+  bookTo: typeof Types.ObjectId | PopulatedDoc<{ _id: typeof Types.ObjectId, host: typeof Types.ObjectId }>; // staycation
   duration: {
     start: string;
     end: string;

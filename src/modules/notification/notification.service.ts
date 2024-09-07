@@ -2,10 +2,12 @@ import { INotificationInput, INotificationSchema } from './notification.interfac
 import Notification from './schema/Notification.schema'
 import { logger } from './../../utils'
 import { Response } from 'express'
+import NotificationCount from './schema/NotificationCount.schema';
 
-let addNotification = async (data: INotificationInput): Promise<void> => {
+let addNotification = async (data: INotificationInput): Promise<any> => {
   try {
-    new Notification({ ...data }).save()
+    let newNotif = new Notification({ ...data }).save()
+    return await newNotif;
   } catch(e: any) {
     logger('notification', 'addNotification', e.message, 'NTF-0001')
   }
@@ -41,11 +43,29 @@ let deleteNotification = async (res: Response, id: string): Promise<Response> =>
   }
 }
 
+let incrementNotifCount = async (user: string, field: string): Promise<void> => {
+  try {
+    await NotificationCount.findOneAndUpdate({ user }, { $inc: { [field]: 1 } }).exec()
+  } catch(e: any) {
+    logger('notification.controller', 'incrementNotifCount', e.message, 'NTF-0005')
+  }
+}
+
+let resetNotifCount = async (user: string, data: any): Promise<void> => {
+  try {
+    await NotificationCount.findOneAndUpdate({ user }, { $set: { ...data } }).exec()
+  } catch(e: any) {
+    logger('notification.controller', 'incrementNotifCount', e.message, 'NTF-0005')
+  }
+}
+
 const NotificationService = {
   addNotification,
   markAsRead,
   getNotification,
-  deleteNotification
+  deleteNotification,
+  incrementNotifCount,
+  resetNotifCount
 }
 
 export default NotificationService

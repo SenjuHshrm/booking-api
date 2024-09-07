@@ -8,7 +8,7 @@ import { createShardedAdapter, createAdapter } from '@socket.io/redis-adapter'
 import { createServer } from 'http';
 import { RedisClientType, RedisModules, RedisFunctions, RedisScripts } from 'redis';
 import { instrument } from '@socket.io/admin-ui';
-
+import { checkBookingArrivals } from './tasks';
 import { dbConfig, env, port, redisClient, webhook } from './config'
 import { header } from './middleware'
 import IO from './socket/io'
@@ -53,6 +53,7 @@ app.use(cors({
 app.use(passport.initialize())
 import './config/passport.config'
 
+checkBookingArrivals()
 app.use(header)
 app.use('/api/', Routes)
 app.get('/*', (req: Request, res: Response) => {

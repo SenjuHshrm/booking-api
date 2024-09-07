@@ -484,6 +484,16 @@ let checkOutGuest = async (
   }
 };
 
+let listGuestFromBooking = async (res: Response, booking: string): Promise<Response> => {
+  try {
+    let list = await BookingGuest.find({ booking }).exec()
+    return res.status(200).json(list)
+  } catch(e: any) {
+    logger('booking.controller', 'listGuestFromBooking', e.message, 'BKNG-0012')
+    return res.status(500).json({code: 'BKNG-0012' })
+  }
+}
+
 const BookingService = {
   addBooking,
   addPaymentToBooking,
@@ -498,6 +508,7 @@ const BookingService = {
   addGuest,
   updateBookStatus,
   checkOutGuest,
+  listGuestFromBooking
 };
 
 export default BookingService;
