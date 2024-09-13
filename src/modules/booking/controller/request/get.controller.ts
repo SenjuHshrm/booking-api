@@ -1,20 +1,8 @@
 import { Request, Response, Router } from "express";
-import { PaginationParams } from "modules/booking/booking.interface";
 import BookingService from "../../booking.service";
 import passport from "passport";
-
-const validatePaginationParams = (
-  limit: string,
-  page: string
-): PaginationParams => {
-  const validatedLimit: number = parseInt(limit, 10) || 10;
-  const validatedPage: number = parseInt(page, 10) || 1;
-  const validatedOffset: number = (validatedPage - 1) * validatedLimit;
-  return {
-    limit: validatedLimit,
-    offset: validatedOffset,
-  };
-};
+import { getToken } from "../../../../utils/token-payload";
+import validatePaginationParams from "../../../../utils/validate-pagination";
 
 const getBookingRoutes: Router = Router()
   .get(
@@ -38,15 +26,32 @@ const getBookingRoutes: Router = Router()
   )
 
   .get(
-    "/trips/:user",
+    "/trips",
     passport.authenticate("jwt", { session: false }),
     (req: Request, res: Response) => {
-      return BookingService.listBookingByGuestId(res, req.params.user);
+      const type = (req.query.type as string) || "upcoming";
+      const { limit, offset } = validatePaginationParams(
+        req.query?.limit as string | null,
+        req.query?.page as string | null
+      );
+      const authId = getToken(req)?.sub as string;
+      return BookingService.listBookingByGuestId(
+        res,
+        type,
+        limit,
+        offset,
+        <string>req.query?.search,
+        authId
+      );
     }
   )
 
-  .get('/guest-list/:bookingId', passport.authenticate('jwt', { session: false }), (req: Request, res: Response) => {
-    return BookingService.listGuestFromBooking(res, req.params.bookingId)
-  })
+  .get(
+    "/guest-list/:bookingId",
+    passport.authenticate("jwt", { session: false }),
+    (req: Request, res: Response) => {
+      return BookingService.listGuestFromBooking(res, req.params.bookingId);
+    }
+  );
 
 export default getBookingRoutes;
