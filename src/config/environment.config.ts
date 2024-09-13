@@ -31,6 +31,10 @@ export const env = {
   PAYMONGO_SK: <string>process.env.PAYMONGO_SK,
   PAYMONGO_URL: <string>process.env.PAYMONGO_URL,
   PAYMONGO_URL_VER: <string>process.env.PAYMONGO_URL_VER,
-  PAYMONGO_PAYMENT_METHODS: JSON.parse(<string>process.env.PAYMONGO_PAYMENT_METHODS)
+  PAYMONGO_PAYMENT_METHODS: JSON.parse(<string>process.env.PAYMONGO_PAYMENT_METHODS),
+  CSRF_SECRET: <string>process.env.CSRF_SECRET,
+  COOKIE_SECRET: <string>process.env.COOKIE_SECRET,
+  CSRF_COOKIE_NAME: <string>process.env.CSRF_COOKIE_NAME,
+  CSRF_HEADER_NAME: <string>process.env.CSRF_HEADER_NAME
 }
 
