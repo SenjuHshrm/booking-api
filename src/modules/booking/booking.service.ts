@@ -43,16 +43,197 @@ let addPaymentToBooking = async (
 
 let listBookingByGuestId = async (
   res: Response,
-  id: string
+  type: string,
+  limit: number,
+  offset: number,
+  keyword: string,
+  initiatedBy: string
 ): Promise<Response> => {
   try {
-    let total = await Booking.countDocuments({ initiatedBy: id }).exec();
-    let bookings: IBookingSchema[] = <IBookingSchema[]>(
-      await Booking.find({ initiatedBy: id })
-        .populate({ path: "bookTo", select: "_id name cover" })
-        .exec()
-    );
-    return res.status(200).json({ total, bookings });
+    const populatedFields = [
+      {
+        $lookup: {
+          from: "users",
+          localField: "initiatedBy",
+          foreignField: "_id",
+          as: "initiatedBy",
+        },
+      },
+      {
+        $unwind: "$initiatedBy",
+      },
+      {
+        $lookup: {
+          from: "staycations",
+          localField: "bookTo",
+          foreignField: "_id",
+          as: "bookTo",
+          pipeline: [
+            {
+              $lookup: {
+                from: "users",
+                localField: "host",
+                foreignField: "_id",
+                as: "host",
+              },
+            },
+            {
+              $unwind: "$host",
+            },
+            {
+              $project: {
+                _id: 1,
+                host: {
+                  _id: 1,
+                  name: 1,
+                },
+                descriptionFilter: 1,
+                placeType: 1,
+                maxBooking: 1,
+                address: 1,
+                landmark: 1,
+                cover: 1,
+                name: 1,
+                bedroomList: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $unwind: "$bookTo",
+      },
+      {
+        $lookup: {
+          from: "transactions",
+          localField: "transaction",
+          foreignField: "_id",
+          as: "transaction",
+        },
+      },
+      {
+        $unwind: "$transaction",
+      },
+    ];
+
+    const addFullname = {
+      $addFields: {
+        fullName: {
+          $concat: [
+            "$initiatedBy.name.fName",
+            " ",
+            {
+              $cond: {
+                if: {
+                  $and: [
+                    {
+                      $ne: ["$initiatedBy.name.mName", ""],
+                    },
+                    {
+                      $ne: ["$initiatedBy.name.mName", null],
+                    },
+                  ],
+                },
+                then: {
+                  $concat: [
+                    {
+                      $substrCP: ["$initiatedBy.name.mName", 0, 1],
+                    },
+                    ". ",
+                  ],
+                },
+                else: "",
+              },
+            },
+            "$initiatedBy.name.lName",
+            {
+              $cond: {
+                if: {
+                  $ne: ["$initiatedBy.name.xName", ""],
+                },
+                then: {
+                  $concat: [", ", "$initiatedBy.name.xName"],
+                },
+                else: "",
+              },
+            },
+          ],
+        },
+      },
+    };
+
+    const project = {
+      $project: {
+        _id: 1,
+        initiatedBy: {
+          _id: 1,
+          img: 1,
+          fullName: "$fullName",
+          contact: 1,
+        },
+        bookTo: 1,
+        status: 1,
+        duration: 1,
+        details: 1,
+        transaction: 1,
+        isCancelled: 1,
+        cancellationPolicy: 1,
+        isApproved: 1,
+        createdAt: 1,
+      },
+    };
+
+    const sort = {
+      $sort: {
+        createdAt: -1,
+      },
+    };
+
+    const skipper = {
+      $skip: offset,
+    };
+
+    const limiter = {
+      $limit: limit,
+    };
+
+    let filter: any = {
+      $match: {
+        $and: [
+          { "initiatedBy._id": new mongoose.Types.ObjectId(initiatedBy) },
+          { status: type },
+        ],
+      },
+    };
+
+    if (keyword) {
+      filter.$match.$and.push({
+        "bookTo.name": new RegExp(`${keyword}`, "imu"),
+      });
+    }
+
+    const count: any = await Booking.aggregate([
+      ...populatedFields,
+      addFullname,
+      project,
+      filter,
+      { $count: "totalCount" },
+    ]).exec();
+
+    const bookings = await Booking.aggregate([
+      ...populatedFields,
+      addFullname,
+      project,
+      filter,
+      sort,
+      skipper,
+      limiter,
+    ]).exec();
+
+    return res.json({
+      bookings,
+      totalCount: count.length > 0 ? count[0].totalCount : 0,
+    });
   } catch (e: any) {
     logger(
       "booking.controller",
@@ -271,113 +452,6 @@ let getBookingByType = async (
       });
     }
 
-    // if (type === "for_approval") {
-    //   const sevenDaysAgo = moment().subtract(7, "days").startOf("day").toDate();
-    //   const today = moment().endOf("day").toDate();
-    //   filter.$match.$and.push(
-    //     ...[
-    //       {
-    //         status: type,
-    //       },
-    //       {
-    //         createdAt: {
-    //           $gte: sevenDaysAgo,
-    //           $lte: today,
-    //         },
-    //       },
-    //     ]
-    //   );
-    // }
-
-    // if (type === "upcoming") {
-    //   const startOfMonth = moment().startOf("month").toDate();
-    //   const endOfMonth = moment().endOf("month").toDate();
-    //   const startOfToday = moment().startOf("day").toDate();
-    //   const endOfToday = moment().endOf("day").toDate();
-    //   filter.$match.$and.push(
-    //     ...[
-    //       {
-    //         status: type,
-    //       },
-    //       {
-    //         createdAt: {
-    //           $gte: startOfMonth,
-    //           $lte: endOfMonth,
-    //           $not: {
-    //             $gte: startOfToday,
-    //             $lte: endOfToday,
-    //           },
-    //         },
-    //       },
-    //     ]
-    //   );
-    // }
-
-    // if (type === "arriving") {
-    //   const startOfToday = moment().startOf("day").toDate();
-    //   const endOfToday = moment().endOf("day").toDate();
-    //   filter.$match.$and.push(
-    //     ...[
-    //       {
-    //         status: type,
-    //       },
-    //       {
-    //         createdAt: {
-    //           $gte: startOfToday,
-    //           $lte: endOfToday,
-    //         },
-    //       },
-    //     ]
-    //   );
-    // }
-
-    // if (type === "current_guest") {
-    //   filter.$match.$and.push(
-    //     ...[
-    //       {
-    //         isApproved: true,
-    //       },
-    //       { checkInDate: { $exists: true } },
-    //       { checkOutDate: { $exists: false } },
-    //     ]
-    //   );
-    // }
-
-    // if (type === "check_out") {
-    //   filter.$match.$and.push(
-    //     ...[
-    //       {
-    //         isApproved: true,
-    //       },
-    //       { checkInDate: { $exists: true } },
-    //       { checkOutDate: { $exists: true } },
-    //     ]
-    //   );
-    // }
-
-    // if (type === "pending") {
-    //   const sevenDaysAgo = moment().subtract(7, "days").startOf("day").toDate();
-    //   filter.$match.$and.push(
-    //     ...[
-    //       {
-    //         status: "for_approval",
-    //       },
-    //       {
-    //         createdAt: {
-    //           $lt: sevenDaysAgo,
-    //         },
-    //       },
-    //     ]
-    //   );
-    // }
-
-    // if (type === "cancelled") {
-    //   filter.$match.$and.push({
-    //     isCancelled: true,
-    //     status: type,
-    //   });
-    // }
-
     const count: any = await Booking.aggregate([
       ...populatedFields,
       addFullname,
@@ -484,15 +558,63 @@ let checkOutGuest = async (
   }
 };
 
-let listGuestFromBooking = async (res: Response, booking: string): Promise<Response> => {
+let listGuestFromBooking = async (
+  res: Response,
+  booking: string
+): Promise<Response> => {
   try {
-    let list = await BookingGuest.find({ booking }).exec()
-    return res.status(200).json(list)
-  } catch(e: any) {
-    logger('booking.controller', 'listGuestFromBooking', e.message, 'BKNG-0012')
-    return res.status(500).json({code: 'BKNG-0012' })
+    let list = await BookingGuest.find({ booking }).exec();
+    return res.status(200).json(list);
+  } catch (e: any) {
+    logger(
+      "booking.controller",
+      "listGuestFromBooking",
+      e.message,
+      "BKNG-0012"
+    );
+    return res.status(500).json({ code: "BKNG-0012" });
   }
-}
+};
+
+let guestCancelBooking = async (
+  res: Response,
+  authId: string,
+  bookingId: string,
+  reason?: string
+): Promise<Response> => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(bookingId)) {
+      return res.status(400).json({ msg: "Invalid booking ID." });
+    }
+
+    const booking = await Booking.findOne({
+      _id: bookingId,
+      initiatedBy: authId,
+    }).exec();
+    if (!booking) return res.status(400).json({ msg: "Booking not found." });
+
+    if (booking.status === "for_approval") {
+      return updateBookStatus(res, booking._id, "cancelled");
+    }
+
+    if (["upcoming", "arriving"].includes(booking.status) && reason) {
+      const request = await BookingCancellation.findOne({
+        booking: booking._id,
+      }).exec();
+      if (request)
+        return res.status(400).json({
+          msg: "A cancellation request has already been submitted. Please wait for the host's approval.",
+        });
+
+      return requestCancellation(res, booking._id, reason);
+    }
+
+    return res.status(400).json({ msg: "Booking cannot be cancelled." });
+  } catch (e: any) {
+    logger("booking.controller", "cancelBooking", e.message, "BKNG-0013");
+    return res.status(500).json({ code: "BKNG-0013" });
+  }
+};
 
 const BookingService = {
   addBooking,
@@ -508,7 +630,8 @@ const BookingService = {
   addGuest,
   updateBookStatus,
   checkOutGuest,
-  listGuestFromBooking
+  listGuestFromBooking,
+  guestCancelBooking,
 };
 
 export default BookingService;
