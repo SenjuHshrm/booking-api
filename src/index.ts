@@ -1,4 +1,4 @@
-import express, { Express, Request, Response } from 'express'
+import express, { Express, NextFunction, Request, Response } from 'express'
 import morgan from 'morgan'
 import cors from 'cors'
 import { join, resolve } from 'path'
@@ -9,10 +9,11 @@ import { createServer } from 'http';
 import { RedisClientType, RedisModules, RedisFunctions, RedisScripts } from 'redis';
 import { instrument } from '@socket.io/admin-ui';
 import { checkBookingArrivals } from './tasks';
-import { dbConfig, env, port, redisClient, webhook } from './config'
+import { dbConfig, env, port, redisClient, csrf } from './config'
 import { header } from './middleware'
 import IO from './socket/io'
 import { Routes } from './routes';
+import cookieParser from 'cookie-parser';
 
 declare global {
   var appRoot: string;
@@ -38,27 +39,65 @@ IO(io)
 globalThis.appRoot = <string>resolve(__dirname)
 globalThis.io = io
 
+const bodyParser = express.json({ limit: '500mb' })
+
 app.set('port', port(env.NODE_ENV))
 app.use(morgan('dev'))
-app.use(express.json({ limit: '500mb' }))
-app.use(express.urlencoded({ limit: '500mb', extended: true }))
+app.use(bodyParser)
+app.use(express.urlencoded({ limit: '500mb', extended: false }))
 app.use(express.static(join(__dirname, 'uploads')))
 app.use(express.static(join(__dirname, 'app')))
 app.use(cors({
   origin: env.ORIGIN,
-  allowedHeaders: ['Authorization', 'Content-Type'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE']
+  allowedHeaders: ['Authorization', 'Content-Type', env.CSRF_HEADER_NAME],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
 }))
+
+// let getSec: CsrfSecretRetriever = <CsrfSecretRetriever>((req: Request) => req.secret)
+
+// const { invalidCsrfTokenError, generateToken, validateRequest, doubleCsrfProtection } = doubleCsrf({
+//   getSecret: getSec,
+//   // secret: env.CSRF_SECRET,
+//   cookieName: env.CSRF_COOKIE_NAME,
+//   cookieOptions: { sameSite: true, secure: true, signed: true },
+//   ignoredMethods: [ "GET", "HEAD", "OPTIONS" ],
+//   getTokenFromRequest: (req: Request) => <string>req.headers[env.CSRF_COOKIE_NAME]
+// })
+
 
 app.use(passport.initialize())
 import './config/passport.config'
 
 checkBookingArrivals()
+
+app.use(cookieParser(env.COOKIE_SECRET))
 app.use(header)
-app.use('/api/', Routes)
-app.get('/*', (req: Request, res: Response) => {
-  res.sendFile(join(__dirname, '/app/index.html'))
+app.all('*', bodyParser, (req: Request, res: Response, next: NextFunction) => {
+  console.log(
+    'req.secret: ', req.secret, '\n',
+    'req.path: ', req.path, '\n',
+    'req.headers: ', req.headers, '\n',
+    'req.body: ', req.body
+  )
+  next()
 })
+
+app.get('/token', (req: Request, res: Response) => {
+  // res.setHeader('Set-Cookie', `${env.CSRF_COOKIE_NAME}=${csrf.generateToken(req, res)}; Path=/; SameSite=None; Domain=localhost:3000`)
+  
+  // csrf.generateToken(req, res, true, true)
+  let token = <string>csrf.generateToken(req, res)
+  // res.cookie(env.CSRF_COOKIE_NAME, token, { secure: true, httpOnly: false, sameSite: 'none', domain: 'localhost' })
+  res.json({
+    token
+  })
+})
+
+app.use('/api/', Routes)
+// app.get('/*', (req: Request, res: Response) => {
+//   res.sendFile(join(__dirname, '/app/index.html'))
+// })
 
 httpServer.listen(app.get('port'), () => {
   dbConfig()
@@ -72,8 +111,5 @@ httpServer.listen(app.get('port'), () => {
       password: env.SIO_ADMIN_PASSWORD
     }
   })
-  // if(!env.HOST.includes('http://localhost')) {
-  //   webhook()
-  // }
   console.log(`App running on PORT ${app.get('port')}`)
 })
