@@ -1,7 +1,6 @@
 import { Router, Request, Response } from "express";
 import { IBookingInput } from "modules/booking/booking.interface";
 import BookingService from "./../../booking.service";
-import passport from "passport";
 import { getToken } from "../../../../utils/token-payload";
 import { TokenPayload } from "interfaces/token.interface";
 
@@ -58,7 +57,6 @@ const postBookingRoutes: Router = Router()
 
   .post(
     "/cancel-booking",
-    passport.authenticate("jwt", { session: false }),
     (req: Request, res: Response) => {
       const token: TokenPayload = getToken(req) as TokenPayload;
       const { bookingId, reason } = req.body;
