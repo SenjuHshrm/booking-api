@@ -4,6 +4,7 @@ dotenv.config()
 
 export const env = {
   HOST: <string>process.env.HOST,
+  DOMAIN_NAME: <string>process.env.DOMAIN_NAME,
   NODE_ENV: <string>process.env.NODE_ENV,
   ORIGIN: (<string>process.env.ORIGIN)?.split(' '),
   JWT_SECRET: <string>process.env.JWT_SECRET,

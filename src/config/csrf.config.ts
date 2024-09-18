@@ -4,7 +4,7 @@ import { env } from '../config'
 
 export const csrf = doubleCsrf({
   getSecret: <CsrfSecretRetriever>((req: Request) => req.secret),
-  cookieName: `localhost.${env.CSRF_COOKIE_NAME}`,
+  cookieName: `${env.DOMAIN_NAME}.${env.CSRF_COOKIE_NAME}`,
   cookieOptions: {
     sameSite: 'lax',
     path: '/',
