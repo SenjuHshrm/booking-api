@@ -95,9 +95,9 @@ app.get('/token', (req: Request, res: Response) => {
 })
 
 app.use('/api/', Routes)
-// app.get('/*', (req: Request, res: Response) => {
-//   res.sendFile(join(__dirname, '/app/index.html'))
-// })
+app.get('/*', (req: Request, res: Response) => {
+  res.sendFile(join(__dirname, '/app/index.html'))
+})
 
 httpServer.listen(app.get('port'), () => {
   dbConfig()
