@@ -9,7 +9,7 @@ export interface PaginationParams {
 
 export interface IBookingSchema extends Document {
   initiatedBy: typeof Types.ObjectId | PopulatedDoc<IUserPrev>; // user
-  bookTo: typeof Types.ObjectId | PopulatedDoc<{ _id: typeof Types.ObjectId, host: typeof Types.ObjectId }>; // staycation
+  bookTo: typeof Types.ObjectId | PopulatedDoc<any>; // staycation
   duration: {
     start: string;
     end: string;
@@ -18,7 +18,13 @@ export interface IBookingSchema extends Document {
   details: any;
   isCancelled: boolean;
   cancellationPolicy: string;
-  status: 'for_approval' | 'upcoming' | 'arriving' | 'current_guest' | 'check_out' | 'cancelled';
+  status:
+    | "for_approval"
+    | "upcoming"
+    | "arriving"
+    | "current_guest"
+    | "check_out"
+    | "cancelled";
   checkInDate: string;
   checkInTime: string;
   checkOutDate: string;
@@ -47,7 +53,7 @@ export interface IBookingGuestSchema extends Document {
 export interface IBookingCancellationSchema extends Document {
   booking: typeof Types.ObjectId | PopulatedDoc<any>;
   reason: string;
-  status: 'pending' | 'cancelled';
+  status: "pending" | "approved" | "denied";
   createdAt: string;
   updatedAt: string;
 }

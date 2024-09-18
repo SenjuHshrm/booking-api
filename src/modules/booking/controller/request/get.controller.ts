@@ -52,6 +52,25 @@ const getBookingRoutes: Router = Router()
     (req: Request, res: Response) => {
       return BookingService.listGuestFromBooking(res, req.params.bookingId);
     }
+  )
+
+  .get(
+    "/cancelled/:id/:page/:limit",
+    passport.authenticate("jwt", { session: false }),
+    (req: Request, res: Response) => {
+      const { limit, offset } = validatePaginationParams(
+        req.params.limit,
+        req.params.page
+      );
+
+      return BookingService.getCancelledRequest(
+        res,
+        limit,
+        offset,
+        <string>req.query?.search,
+        req.params.id
+      );
+    }
   );
 
 export default getBookingRoutes;
