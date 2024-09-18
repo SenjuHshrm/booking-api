@@ -55,18 +55,57 @@ const postBookingRoutes: Router = Router()
     );
   })
 
+  .post("/check-in/:booking", (req: Request, res: Response) => {
+    const token: TokenPayload = <TokenPayload>getToken(req);
+    return BookingService.checkInOutBooking(
+      res,
+      req.params.booking,
+      token?.sub,
+      "current_guest"
+    );
+  })
+
+  .post("/check-out/:booking", (req: Request, res: Response) => {
+    const token: TokenPayload = <TokenPayload>getToken(req);
+    return BookingService.checkInOutBooking(
+      res,
+      req.params.booking,
+      token?.sub,
+      "check_out"
+    );
+  })
+
+  .post("/cancel-booking", (req: Request, res: Response) => {
+    const token: TokenPayload = getToken(req) as TokenPayload;
+    const { bookingId, reason } = req.body;
+    return BookingService.guestCancelBooking(res, token.sub, bookingId, reason);
+  })
+
   .post(
-    "/cancel-booking",
+    "/approve-cancel/:bookingId/:cancelId",
     (req: Request, res: Response) => {
       const token: TokenPayload = getToken(req) as TokenPayload;
-      const { bookingId, reason } = req.body;
-      return BookingService.guestCancelBooking(
+      const { bookingId, cancelId } = req.params;
+      return BookingService.approveDenyCancellation(
         res,
-        token.sub,
+        cancelId,
         bookingId,
-        reason
+        token.sub,
+        "approve"
       );
     }
-  );
+  )
+
+  .post("/deny-cancel/:bookingId/:cancelId", (req: Request, res: Response) => {
+    const token: TokenPayload = getToken(req) as TokenPayload;
+    const { bookingId, cancelId } = req.params;
+    return BookingService.approveDenyCancellation(
+      res,
+      cancelId,
+      bookingId,
+      token.sub,
+      "deny"
+    );
+  });
 
 export default postBookingRoutes;
